@@ -623,10 +623,4 @@ function getWeeklyHours(trackerObj) {
   return hrs;
 }
 
-// Hook into navigation to render sections
-window.navigateTo = function(sectionId, isPopState = false) {
-  // Look up the original at call time (app.js loads after features.js)
-  if (typeof navigateToOriginal === 'function') navigateToOriginal(sectionId, isPopState);
-  if (sectionId === 'mocks') renderMockTests();
-  if (sectionId === 'friends') renderFriends();
-};
+// Navigation hooks are handled inside navigateTo() in app.js
