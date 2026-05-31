@@ -15,7 +15,7 @@ const FIREBASE_CONFIG = {
 };
 
 // Admin password (change this once you deploy)
-const ADMIN_PASSWORD = ""; // Set this securely — do not hardcode passwords in source code
+const ADMIN_PASSWORD = "cafinal@admin2025"; // Change this after deploying
 
 // Feature flags
 const FEATURES = {
