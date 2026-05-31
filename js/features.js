@@ -49,19 +49,23 @@ async function performLogin() {
     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
     const user = userCredential.user;
     
-    if (!user.emailVerified) {
-      errorMsg.textContent = 'Please verify your email first. Check your inbox.';
-      // Optionally resend
-      // await user.sendEmailVerification();
-      return;
-    }
-    
     // Load user data from Firestore
     const db = firebase.firestore();
-    const doc = await db.collection('students').doc(user.uid).get();
+    const doc = await db.collection('users').doc(user.email).get();
+    
     if (doc.exists) {
       const data = doc.data();
-      STATE.profile = data.profile;
+      
+      const profileData = { ...data };
+      delete profileData.timetable;
+      delete profileData.tracker;
+      delete profileData.revision;
+      delete profileData.mocks;
+      delete profileData.friends;
+      delete profileData.lastLogin;
+      delete profileData.updatedAt;
+
+      STATE.profile = profileData;
       STATE.timetable = data.timetable || [];
       STATE.tracker = data.tracker || {};
       STATE.revision = data.revision || {};
@@ -73,7 +77,9 @@ async function performLogin() {
       navigateTo('dashboard');
       renderDashboard();
     } else {
-      errorMsg.textContent = 'Profile data not found.';
+      // User is authenticated but hasn't completed onboarding wizard yet.
+      hideLoginModal();
+      startOnboarding();
     }
   } catch (error) {
     errorMsg.textContent = error.message;
