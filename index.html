@@ -16,7 +16,7 @@
 <body>
 
 <!-- Loading Overlay -->
-<div id="loading-overlay" style="pointer-events:none;">
+<div id="loading-overlay">
   <div class="loader-logo">📚</div>
   <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#f5c518;margin-bottom:0.25rem;">CA Final Planner</div>
   <div class="loader-text">Loading your personalized experience...</div>
@@ -914,7 +914,7 @@
 </div>
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
-<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;">
+<div id="login-modal" class="hidden">
   <div class="modal-container" style="max-width: 400px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
@@ -927,7 +927,7 @@
       </div>
       <div class="form-group mb-4">
         <label>Password</label>
-        <input type="password" class="form-input" id="login-password" placeholder="••••••••"/>
+        <input type="password" class="form-input" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') performLogin()"/>
       </div>
       <div style="display:flex;gap:1rem;margin-bottom:1rem">
         <button class="btn btn-primary btn-full" onclick="performLogin()">Log In</button>
@@ -990,11 +990,9 @@
 <!-- ══ TOAST CONTAINER ═══════════════════════════════════════ -->
 <div id="toast-container"></div>
 
-<!-- ══ CDN SCRIPTS (async — won't block page load) ════════════ -->
-<!-- FAILSAFE: Force hide loader after 3s even if CDN scripts fail -->
+<!-- FAILSAFE: Force hide loader after 5s even if CDN scripts fail -->
 <script>
   window.__cdnFailed = {};
-  // Hard failsafe: always dismiss loader within 3 seconds
   window.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
       var loader = document.getElementById('loading-overlay');
@@ -1002,31 +1000,31 @@
         loader.style.opacity = '0';
         setTimeout(function() { loader.classList.add('hidden'); }, 400);
       }
-    }, 3000);
+    }, 5000);
   });
 </script>
 
-<!-- Firebase (optional — only loads if internet available) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
-  onerror="window.__cdnFailed.firebase=true;console.warn('Firebase CDN unavailable — offline mode active');"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
-  onerror="window.__cdnFailed.firestore=true;"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
-  onerror="window.__cdnFailed.auth=true;"></script>
+<!-- ══ FIREBASE SDKs — loaded SYNCHRONOUSLY so they are ready before our app runs ══ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 
-<!-- SheetJS for Excel export (graceful fallback to CSV if unavailable) -->
+<!-- SheetJS for Excel export -->
 <script async src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"
-  onerror="window.__cdnFailed.xlsx=true;console.warn('SheetJS CDN unavailable — CSV export will be used instead');"></script>
+  onerror="window.__cdnFailed.xlsx=true;"></script>
 
-<!-- Chart.js (admin panel only — not required for main app) -->
+<!-- Chart.js (admin panel only) -->
 <script async src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
   onerror="window.__cdnFailed.chartjs=true;"></script>
 
-<!-- Core Scripts (loaded synchronously — these are local and always work) -->
-<script src="js/firebase-config.js?v=3"></script>
-<script src="js/data.js?v=3"></script>
-<script src="js/features.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<!-- ══ LOCAL SCRIPTS — loaded after Firebase so auth/db are available ══ -->
+<!-- IMPORTANT: firebase-config → data → app → features (features.js wraps navigateTo/renderTracker
+     which are defined in app.js, so app.js MUST load first) -->
+<script src="js/firebase-config.js?v=4"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
+<script src="js/features.js?v=4"></script>
 
 </body>
 </html>
