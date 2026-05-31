@@ -150,7 +150,7 @@ function clearAllData() {
 }
 
 // Simple Router
-function navigateTo(sectionId, isPopState = false) {
+function navigateToOriginal(sectionId, isPopState = false) {
   const sections = document.querySelectorAll('.section');
   sections.forEach(sec => sec.classList.add('hidden'));
 
@@ -190,7 +190,7 @@ function navigateTo(sectionId, isPopState = false) {
     applyFeatureFlags();
   } else if (sectionId !== 'landing' && sectionId !== 'onboarding') {
     // Redirect un-onboarded users
-    navigateTo('landing');
+    navigateToOriginal('landing');
   }
 }
 
