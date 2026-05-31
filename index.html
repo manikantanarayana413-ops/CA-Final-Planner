@@ -117,6 +117,9 @@
           <button class="btn btn-secondary btn-lg" id="hero-login-btn" onclick="showLoginModal()">
             Log In
           </button>
+          <button class="btn btn-ghost" onclick="promptAdminLogin()" title="Admin Login" style="padding: 0.5rem; opacity: 0.7; font-size: 1.2rem;">
+            🔒
+          </button>
           <button class="btn btn-ghost btn-lg" id="hero-learn-btn">
             Learn How It Works ↓
           </button>
@@ -926,8 +929,11 @@
         <label>Password</label>
         <input type="password" class="form-input" id="login-password" placeholder="••••••••"/>
       </div>
-      <button class="btn btn-primary btn-full" onclick="performLogin()">Log In</button>
-      <div class="text-center mt-3 text-sm text-muted" id="login-error-msg" style="color:var(--red)"></div>
+      <div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <button class="btn btn-primary btn-full" onclick="performLogin()">Log In</button>
+        <button class="btn btn-secondary btn-full" onclick="performSignUp()">Sign Up</button>
+      </div>
+      <div class="text-center text-sm text-muted" id="login-error-msg" style="color:var(--red)"></div>
     </div>
   </div>
 </div>
@@ -1022,6 +1028,5 @@
 <script src="js/features.js"></script>
 <script src="js/app.js"></script>
 
-<div id="admin-icon" style="position:fixed; bottom:15px; right:15px; cursor:pointer; opacity:0.3; font-size:1.2rem; z-index:100;" onclick="promptAdminLogin()" title="Admin Login">🔒</div>
 </body>
 </html>
