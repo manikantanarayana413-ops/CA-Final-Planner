@@ -128,6 +128,7 @@ function saveProfileState() {
   if (FEATURES.firebaseEnabled && STATE.profile) {
     saveUserToFirestore({
       ...STATE.profile,
+      timetable: STATE.timetable,
       tracker: STATE.tracker,
       revision: STATE.revision
     });
