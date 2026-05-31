@@ -150,7 +150,7 @@ function clearAllData() {
 }
 
 // Simple Router
-function navigateToOriginal(sectionId, isPopState = false) {
+function navigateTo(sectionId, isPopState = false) {
   const sections = document.querySelectorAll('.section');
   sections.forEach(sec => sec.classList.add('hidden'));
 
@@ -188,9 +188,12 @@ function navigateToOriginal(sectionId, isPopState = false) {
     
     // Apply admin feature flags dynamically
     applyFeatureFlags();
+    // Render feature sections
+    if (sectionId === 'mocks' && typeof renderMockTests === 'function') renderMockTests();
+    if (sectionId === 'friends' && typeof renderFriends === 'function') renderFriends();
   } else if (sectionId !== 'landing' && sectionId !== 'onboarding') {
     // Redirect un-onboarded users
-    navigateToOriginal('landing');
+    navigateTo('landing');
   }
 }
 
