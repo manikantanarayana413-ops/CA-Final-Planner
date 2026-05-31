@@ -81,6 +81,36 @@ async function performLogin() {
 }
 window.performLogin = performLogin;
 
+async function performSignUp() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const errorMsg = document.getElementById('login-error-msg');
+  
+  if (!email || !pass) {
+    errorMsg.textContent = 'Please enter both email and password.';
+    return;
+  }
+
+  if (!FEATURES.firebaseEnabled || !window.firebase) {
+    errorMsg.textContent = 'Sign up is only available when online.';
+    return;
+  }
+
+  try {
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+    errorMsg.style.color = 'var(--emerald)';
+    errorMsg.textContent = 'Sign up successful! You can now start planning.';
+    setTimeout(() => {
+      hideLoginModal();
+      startOnboarding();
+    }, 1500);
+  } catch (error) {
+    errorMsg.style.color = 'var(--red)';
+    errorMsg.textContent = error.message;
+  }
+}
+window.performSignUp = performSignUp;
+
 function performLogout() {
   if (FEATURES.firebaseEnabled && window.firebase) {
     firebase.auth().signOut();
