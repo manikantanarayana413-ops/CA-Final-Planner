@@ -296,6 +296,11 @@ let onboardingData = {
 };
 
 function startOnboarding() {
+  if (FEATURES.firebaseEnabled && window.firebase && !firebase.auth().currentUser) {
+    showToast('Please Log In or Sign Up first to save your plan online.', 'error');
+    showLoginModal();
+    return;
+  }
   currentStep = 1;
   document.getElementById('modal-overlay').classList.remove('hidden');
   renderWizardStep();
