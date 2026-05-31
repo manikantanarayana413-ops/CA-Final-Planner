@@ -914,7 +914,7 @@
 </div>
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
-<div id="login-modal" class="hidden">
+<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;">
   <div class="modal-container" style="max-width: 400px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
@@ -1007,11 +1007,11 @@
 </script>
 
 <!-- Firebase (optional — only loads if internet available) -->
-<script async src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
   onerror="window.__cdnFailed.firebase=true;console.warn('Firebase CDN unavailable — offline mode active');"></script>
-<script async src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
   onerror="window.__cdnFailed.firestore=true;"></script>
-<script async src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
   onerror="window.__cdnFailed.auth=true;"></script>
 
 <!-- SheetJS for Excel export (graceful fallback to CSV if unavailable) -->
