@@ -5,13 +5,13 @@
 // ============================================================
 
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyCuRePAuLSQzdRTX1YSxhVcnRc8c_d-tqo",
-  authDomain:        "ca-final-planner.firebaseapp.com",
-  projectId:         "ca-final-planner",
-  storageBucket:     "ca-final-planner.firebasestorage.app",
+  apiKey: "AIzaSyCuRePAuLSQzdRTX1YSxhVcnRc8c_d-tqo",
+  authDomain: "ca-final-planner.firebaseapp.com",
+  projectId: "ca-final-planner",
+  storageBucket: "ca-final-planner.firebasestorage.app",
   messagingSenderId: "305661559745",
-  appId:             "1:305661559745:web:448a75e3c20249a89c6540",
-  measurementId:     "G-0B0R37BKND"
+  appId: "1:305661559745:web:448a75e3c20249a89c6540",
+  measurementId: "G-0B0R37BKND"
 };
 
 // Admin password (change this once you deploy)
