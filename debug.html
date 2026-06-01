@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Debug Page V2</title>
+</head>
+<body style="background:#111; color:#fff; font-family:sans-serif; padding: 2rem;">
+  <h2>JavaScript Debugger V2</h2>
+  <div id="error-log" style="background:#222; padding:1rem; color:#fff; font-family:monospace; border:1px solid #444; min-height: 200px;">
+    Loading scripts one by one...<br/><br/>
+  </div>
+
+  <script>
+    const logDiv = document.getElementById('error-log');
+    const scripts = [
+      'js/firebase-config.js',
+      'js/data.js',
+      'js/state.js',
+      'js/core.js',
+      'js/planner.js',
+      'js/ui.js',
+      'js/auth.js',
+      'js/features.js'
+    ];
+    let current = 0;
+    
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+       logDiv.innerHTML += `<span style="color:#ff4444">RUNTIME ERROR: ${msg} (Line ${lineNo})</span><br/>`;
+       return false;
+    };
+
+    function loadNext() {
+      if (current >= scripts.length) {
+        logDiv.innerHTML += '<br/><strong>Finished loading all scripts.</strong>';
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = scripts[current] + '?v=' + Math.random();
+      
+      s.onload = () => { 
+        logDiv.innerHTML += `<span style="color:#00C851">✅ ${scripts[current]} loaded successfully.</span><br/>`;
+        current++; 
+        loadNext(); 
+      };
+      
+      s.onerror = (e) => { 
+        logDiv.innerHTML += `<span style="color:#ff4444">❌ ${scripts[current]} FAILED TO LOAD (Syntax Error or Missing File)!</span><br/>`;
+        current++; 
+        loadNext(); 
+      };
+      
+      document.body.appendChild(s);
+    }
+    
+    loadNext();
+  </script>
+</body>
+</html>
