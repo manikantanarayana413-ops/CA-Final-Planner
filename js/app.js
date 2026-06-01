@@ -191,6 +191,9 @@ function navigateTo(sectionId, isPopState = false) {
     // Render feature sections
     if (sectionId === 'mocks' && typeof renderMockTests === 'function') renderMockTests();
     if (sectionId === 'friends' && typeof renderFriends === 'function') renderFriends();
+  } else if (sectionId === 'admin') {
+    // Admin page accessible without full onboarding
+    if (typeof renderAdminPage === 'function') renderAdminPage();
   } else if (sectionId !== 'landing' && sectionId !== 'onboarding') {
     // Redirect un-onboarded users
     navigateTo('landing');
@@ -1782,6 +1785,8 @@ function renderTracker() {
       recentDiv.innerHTML = `<span class="text-muted text-xs">No active study history found yet. Clear your daily plans above!</span>`;
     }
   }
+  // Initialize drag and drop for sessions
+  if (typeof initDragAndDrop === 'function') initDragAndDrop();
 }
 
 function populateTrackerChaptersSelect(subId) {
