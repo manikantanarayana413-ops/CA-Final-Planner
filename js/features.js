@@ -341,7 +341,7 @@ function initMockSelect() {
   const select = document.getElementById('mock-subject-select');
   if (select && STATE.profile) {
     const activeSubs = getActiveSubjects(STATE.profile.groupChoice);
-    select.innerHTML = activeSubs.map(s => \`<option value="\${s.id}">\${s.name}</option>\`).join('');
+    select.innerHTML = activeSubs.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   }
 }
 
@@ -360,19 +360,19 @@ function renderMockTests() {
     const sub = CA_DATA.subjects[m.subjectId] || { name: 'Unknown', color: '#888' };
     const pct = m.marks;
     const col = pct >= 60 ? 'var(--emerald)' : (pct >= 40 ? 'var(--gold)' : 'var(--danger)');
-    return \`
-      <div class="card mb-3 p-3" style="border-left: 4px solid \${col}">
+    return `
+      <div class="card mb-3 p-3" style="border-left: 4px solid ${col}">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div style="font-weight:700;font-size:0.9rem">\${sub.shortName}: \${m.series}</div>
-            <div class="text-xs text-secondary">\${m.date}</div>
+            <div style="font-weight:700;font-size:0.9rem">${sub.shortName}: ${m.series}</div>
+            <div class="text-xs text-secondary">${m.date}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-size:1.2rem;font-weight:800;color:\${col}">\${m.marks} <span style="font-size:0.7rem;color:var(--text-secondary)">/ 100</span></div>
+            <div style="font-size:1.2rem;font-weight:800;color:${col}">${m.marks} <span style="font-size:0.7rem;color:var(--text-secondary)">/ 100</span></div>
           </div>
         </div>
       </div>
-    \`;
+    `;
   }).join('');
 }
 
@@ -424,13 +424,13 @@ function renderFriends() {
 
   leaderList.sort((a,b) => b.hours - a.hours);
 
-  lb.innerHTML = leaderList.map((l, idx) => \`
-    <div style="display:flex;align-items:center;padding:0.75rem;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);margin-bottom:0.5rem;border:1px solid \${l.isMe ? 'var(--gold)' : 'transparent'}">
-      <div style="font-size:1.2rem;font-weight:800;width:30px;color:var(--text-secondary)">\${idx + 1}</div>
-      <div style="flex:1;font-weight:700;\${l.isMe ? 'color:var(--gold)' : ''}">\${l.name}</div>
-      <div style="font-weight:800">\${l.hours} <span class="text-xs text-muted">hrs</span></div>
+  lb.innerHTML = leaderList.map((l, idx) => `
+    <div style="display:flex;align-items:center;padding:0.75rem;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);margin-bottom:0.5rem;border:1px solid ${l.isMe ? 'var(--gold)' : 'transparent'}">
+      <div style="font-size:1.2rem;font-weight:800;width:30px;color:var(--text-secondary)">${idx + 1}</div>
+      <div style="flex:1;font-weight:700;${l.isMe ? 'color:var(--gold)' : ''}">${l.name}</div>
+      <div style="font-weight:800">${l.hours} <span class="text-xs text-muted">hrs</span></div>
     </div>
-  \`).join('');
+  `).join('');
 }
 
 function generateFriendCode() {
