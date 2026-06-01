@@ -914,7 +914,7 @@
 </div>
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
-<div id="login-modal" class="hidden">
+<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;">
   <div class="modal-container" style="max-width: 400px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
@@ -1019,12 +1019,11 @@
   onerror="window.__cdnFailed.chartjs=true;"></script>
 
 <!-- ══ LOCAL SCRIPTS — loaded after Firebase so auth/db are available ══ -->
-<!-- IMPORTANT: firebase-config → data → app → features (features.js wraps navigateTo/renderTracker
-     which are defined in app.js, so app.js MUST load first) -->
-<script src="js/firebase-config.js?v=4"></script>
-<script src="js/data.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
-<script src="js/features.js?v=4"></script>
+<!-- Script order: firebase-config → data → features → app -->
+<script src="js/firebase-config.js?v=5"></script>
+<script src="js/data.js?v=5"></script>
+<script src="js/features.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 
 </body>
 </html>
