@@ -915,29 +915,19 @@
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
 <div id="login-modal" class="hidden">
-  <div class="modal-container" style="max-width: 400px;">
-    <div class="modal-header">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
-      <button class="btn btn-ghost" onclick="hideLoginModal()" style="font-size:1.2rem;padding:0;height:auto">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group mb-3">
-        <label>Email</label>
-        <input type="email" class="form-input" id="login-email" placeholder="your@email.com"/>
-      </div>
-      <div class="form-group mb-4">
-        <label>Password</label>
-        <input type="password" class="form-input" id="login-password" placeholder="••••••••"/>
-      </div>
-      <div style="display:flex;gap:1rem;margin-bottom:1rem">
-        <button class="btn btn-primary btn-full" onclick="performLogin()">Log In</button>
-        <button class="btn btn-secondary btn-full" onclick="performSignUp()">Sign Up</button>
-      </div>
-      <div class="text-center text-sm text-muted" id="login-error-msg" style="color:var(--red)"></div>
-    </div>
+  <div class="modal-content">
+    <h2 id="modal-title">Log In</h2>
+    <input type="email" id="login-email" placeholder="Email Address">
+    <input type="password" id="login-password" placeholder="Password">
+    <p id="login-error-msg" style="margin: 10px 0;"></p>
+    
+    <button id="auth-main-btn" onclick="handleAuthAction()">Log In</button>
+    
+    <p id="toggle-text">
+      Don't have an account? <a href="#" onclick="toggleAuthMode(); return false;">Sign Up</a>
+    </p>
   </div>
 </div>
-
 <!-- ══ PROFILE & SETTINGS MODAL ══════════════════════════════════════ -->
 <div id="profile-modal" class="hidden">
   <div class="modal-container" style="max-width: 500px;">
