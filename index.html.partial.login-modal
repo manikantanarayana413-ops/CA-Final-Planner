@@ -1,0 +1,41 @@
+<!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
+<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem">
+  <div class="modal-container" style="max-width: 420px;">
+    <div class="modal-header">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--gold)" id="login-modal-title">Log In</div>
+      <button class="btn btn-ghost" onclick="hideLoginModal()" style="font-size:1.2rem;padding:0;height:auto">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Login/Signup Form -->
+      <div id="login-form-section">
+        <div class="form-group mb-3">
+          <label>Email Address</label>
+          <input type="email" class="form-input" id="login-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter' && document.getElementById('login-password').style.display !== 'none') performLogin()"/>
+        </div>
+        <div class="form-group mb-4" id="password-group" style="display:none">
+          <label>Password</label>
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') performLogin()"/>
+        </div>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem">
+          <button class="btn btn-primary btn-full" id="login-submit-btn" onclick="performLogin()">Log In</button>
+          <button class="btn btn-secondary btn-full" id="login-signup-btn" onclick="showSignupStep()">Sign Up</button>
+        </div>
+        <button class="btn btn-ghost btn-full" id="login-back-btn" onclick="goBackToLogin()" style="display:none;margin-bottom:1rem">← Back to Login</button>
+      </div>
+
+      <!-- Verification Sent Message -->
+      <div id="login-verify-section" style="display:none;text-align:center;padding:1rem">
+        <div style="font-size:2rem;margin-bottom:1rem">📧</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:var(--gold)">Check Your Email!</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem">We've sent a sign-up link to:</p>
+        <div style="background:rgba(245,197,24,0.1);border:1px solid rgba(245,197,24,0.25);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.9rem;font-weight:600;word-break:break-all" id="verify-email-display">email@example.com</div>
+        <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem">Click the link in your email to:<br/>1️⃣ Set your password<br/>2️⃣ Complete your sign-up<br/>3️⃣ Log in to your account</p>
+        <div style="background:rgba(100,200,255,0.08);border:1px solid rgba(100,200,255,0.2);border-radius:var(--radius-sm);padding:0.75rem;font-size:0.75rem;color:var(--cyan);margin-bottom:1.5rem">
+          ℹ️ Link expires in 1 hour. Didn't receive it? Check spam folder or sign up again.
+        </div>
+      </div>
+
+      <div class="text-center text-sm text-muted" id="login-error-msg" style="color:var(--red)"></div>
+    </div>
+  </div>
+</div>

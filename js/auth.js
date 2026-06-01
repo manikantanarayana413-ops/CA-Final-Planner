@@ -4,6 +4,7 @@
 
 // Global Auth State
 let currentAuthUser = null;
+let pendingSignUpEmail = null;
 
 // Initialize Auth Listeners
 function initAuthListeners() {
@@ -40,6 +41,7 @@ function showLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.remove('hidden');
+    showLoginStep();
   }
 }
 
@@ -51,7 +53,74 @@ function hideLoginModal() {
     document.getElementById('login-email').value = '';
     document.getElementById('login-password').value = '';
     document.getElementById('login-error-msg').textContent = '';
+    pendingSignUpEmail = null;
+    showLoginStep();
   }
+}
+
+// Show Login Step (email + password)
+function showLoginStep() {
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-submit-btn');
+  const signupBtn = document.getElementById('login-signup-btn');
+  const backBtn = document.getElementById('login-back-btn');
+  const verifySection = document.getElementById('login-verify-section');
+
+  emailInput.style.display = 'block';
+  passwordInput.style.display = 'block';
+  loginBtn.style.display = 'inline-block';
+  signupBtn.style.display = 'inline-block';
+  backBtn.style.display = 'none';
+  if (verifySection) verifySection.style.display = 'none';
+
+  emailInput.placeholder = 'your@email.com';
+  passwordInput.placeholder = '••••••••';
+}
+
+// Show Signup Step (email only)
+function showSignupStep() {
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-submit-btn');
+  const signupBtn = document.getElementById('login-signup-btn');
+  const backBtn = document.getElementById('login-back-btn');
+  const verifySection = document.getElementById('login-verify-section');
+
+  emailInput.style.display = 'block';
+  passwordInput.style.display = 'none';
+  loginBtn.style.display = 'none';
+  signupBtn.textContent = '📧 Send Sign-Up Link';
+  signupBtn.style.display = 'inline-block';
+  backBtn.style.display = 'inline-block';
+  if (verifySection) verifySection.style.display = 'none';
+
+  emailInput.placeholder = 'Enter your email';
+  emailInput.value = '';
+  document.getElementById('login-error-msg').textContent = '';
+}
+
+// Show Verification Sent Step
+function showVerificationStep(email) {
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-submit-btn');
+  const signupBtn = document.getElementById('login-signup-btn');
+  const backBtn = document.getElementById('login-back-btn');
+  const verifySection = document.getElementById('login-verify-section');
+
+  emailInput.style.display = 'none';
+  passwordInput.style.display = 'none';
+  loginBtn.style.display = 'none';
+  signupBtn.style.display = 'none';
+  backBtn.style.display = 'inline-block';
+  if (verifySection) {
+    verifySection.style.display = 'block';
+    document.getElementById('verify-email-display').textContent = email;
+    pendingSignUpEmail = email;
+  }
+
+  document.getElementById('login-error-msg').textContent = '';
 }
 
 // Perform Login
@@ -84,24 +153,25 @@ async function performLogin() {
       msg = '❌ Incorrect password. Try again.';
     } else if (error.code === 'auth/invalid-email') {
       msg = '❌ Invalid email format.';
+    } else if (error.code === 'auth/invalid-credential') {
+      msg = '❌ Invalid email or password.';
     }
     errorMsg.textContent = msg;
   }
 }
 
-// Perform Sign Up
+// Perform Sign Up (Email Only - Send Link)
 async function performSignUp() {
   const email = document.getElementById('login-email')?.value.trim();
-  const password = document.getElementById('login-password')?.value.trim();
   const errorMsg = document.getElementById('login-error-msg');
 
-  if (!email || !password) {
-    errorMsg.textContent = '⚠️ Please enter email and password.';
+  if (!email) {
+    errorMsg.textContent = '⚠️ Please enter your email address.';
     return;
   }
 
-  if (password.length < 6) {
-    errorMsg.textContent = '⚠️ Password must be at least 6 characters.';
+  if (!email.includes('@')) {
+    errorMsg.textContent = '⚠️ Please enter a valid email address.';
     return;
   }
 
@@ -111,40 +181,57 @@ async function performSignUp() {
   }
 
   try {
-    const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    // Check if user already exists
+    try {
+      await firebase.auth().sendPasswordResetEmail(email);
+      // If this succeeds, user exists
+      showToast('📧 User exists! Password reset link sent. Check your email.');
+      errorMsg.textContent = '✅ If this email is registered, password reset link has been sent.';
+      return;
+    } catch (checkError) {
+      if (checkError.code !== 'auth/user-not-found') {
+        throw checkError;
+      }
+      // User not found, proceed with signup
+    }
+
+    // Create new user with temporary password
+    const tempPassword = Math.random().toString(36).slice(-12); // Random secure password
+    const result = await firebase.auth().createUserWithEmailAndPassword(email, tempPassword);
     const user = result.user;
-    
+
     // Set display name
     const name = email.split('@')[0];
     await user.updateProfile({ displayName: name });
 
-    console.log("Sign up successful:", user.email);
-    showToast(`🎉 Welcome to CA Final Planner, ${name}!`);
-    
-    // Start onboarding after signup
-    currentAuthUser = user;
-    STATE.profile = {
-      name: name,
-      email: user.email,
-      uid: user.uid,
-      id: user.uid
-    };
-    localStorage.setItem('ca_final_user_uid', user.uid);
-    
-    hideLoginModal();
-    startOnboarding();
+    // Send password setup link (using sendPasswordResetEmail)
+    await firebase.auth().sendPasswordResetEmail(email);
+
+    console.log("Sign up email sent:", email);
+    showToast('📧 Sign-up link sent! Check your email to set your password.');
+
+    // Show verification step
+    showVerificationStep(email);
+    pendingSignUpEmail = email;
   } catch (error) {
     console.error("Sign up error:", error.code, error.message);
     let msg = '❌ Sign up failed.';
     if (error.code === 'auth/email-already-in-use') {
-      msg = '❌ Email already in use. Please log in instead.';
+      msg = '✅ Email already registered! Password reset link sent.';
+      showToast('📧 Check your email for password setup link.');
     } else if (error.code === 'auth/invalid-email') {
       msg = '❌ Invalid email format.';
     } else if (error.code === 'auth/weak-password') {
-      msg = '❌ Password is too weak (min 6 characters).';
+      msg = '❌ System error. Please try again.';
     }
     errorMsg.textContent = msg;
   }
+}
+
+// Go Back from Signup to Login
+function goBackToLogin() {
+  showLoginStep();
+  pendingSignUpEmail = null;
 }
 
 // Perform Logout
@@ -228,6 +315,9 @@ window.showLoginModal = showLoginModal;
 window.hideLoginModal = hideLoginModal;
 window.performLogin = performLogin;
 window.performSignUp = performSignUp;
+window.goBackToLogin = goBackToLogin;
+window.showLoginStep = showLoginStep;
+window.showSignupStep = showSignupStep;
 window.performLogout = performLogout;
 window.promptAdminLogin = promptAdminLogin;
 window.showProfileModal = showProfileModal;
