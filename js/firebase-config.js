@@ -1,7 +1,5 @@
 // ============================================================
 // FIREBASE CONFIG — CA Final Planner
-// Replace these placeholder values with your Firebase project
-// credentials from https://console.firebase.google.com
 // ============================================================
 
 const FIREBASE_CONFIG = {
@@ -14,59 +12,101 @@ const FIREBASE_CONFIG = {
   measurementId: "G-0B0R37BKND"
 };
 
-// Admin password (change this once you deploy)
-const ADMIN_PASSWORD = "cafinal@admin2025"; // Change this after deploying
+// Admin password
+const ADMIN_PASSWORD = "Mani@2005";
 
 // Feature flags
 const FEATURES = {
-  firebaseEnabled: true,    // Firebase is now LIVE with real credentials
-  analyticsEnabled: true,   // Firebase Analytics enabled
-  adminEnabled: true,       // Admin panel always enabled
+  firebaseEnabled: true,
+  analyticsEnabled: true,
+  adminEnabled: true,
 };
 
-// Initialize Firebase (only if credentials are provided)
-let db = null;
+// Firebase instances — initialized in initFirebase()
+let db   = null;
 let auth = null;
-let firebaseApp = null;
+let firebaseAppInstance = null;
 
 function initFirebase() {
-  if (!FEATURES.firebaseEnabled || FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") {
-    console.info("ℹ️  Running in offline mode (localStorage only). Add Firebase credentials to enable cloud sync.");
+  // Guard: only run if Firebase SDK is available
+  if (typeof firebase === 'undefined') {
+    console.warn("⚠️ Firebase SDK not loaded. Running in offline mode.");
+    FEATURES.firebaseEnabled = false;
     return false;
   }
+
+  if (!FEATURES.firebaseEnabled) {
+    console.info("ℹ️ Firebase disabled via feature flag. Running in offline mode.");
+    return false;
+  }
+
   try {
-    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+    // Avoid double-initialization
+    if (firebase.apps && firebase.apps.length > 0) {
+      firebaseAppInstance = firebase.apps[0];
+    } else {
+      firebaseAppInstance = firebase.initializeApp(FIREBASE_CONFIG);
+    }
+
     auth = firebase.auth();
     db   = firebase.firestore();
-    console.info("✅ Firebase connected successfully.");
+
+    // Enable offline persistence for Firestore (graceful fallback)
+    db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Firestore persistence unavailable (multiple tabs open).');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Firestore persistence not supported in this browser.');
+      }
+    });
+
+    // Firebase Analytics (optional, only in production)
+    if (FEATURES.analyticsEnabled && typeof firebase.analytics === 'function') {
+      try { firebase.analytics(); } catch(e) { /* silently ignore */ }
+    }
+
+    console.info("✅ Firebase initialized successfully.");
     return true;
   } catch (e) {
     console.error("❌ Firebase init failed:", e);
+    FEATURES.firebaseEnabled = false;
     return false;
   }
 }
 
-// Save user to Firestore (called after onboarding)
-async function saveUserToFirestore(profile) {
-  if (!db) return;
+// ── FIRESTORE HELPERS ────────────────────────────────────────
+
+// Save full user data to Firestore (keyed by email)
+async function saveUserToFirestore(data) {
+  if (!db || !data || !data.email) return;
   try {
-    await db.collection("users").doc(profile.email || profile.id).set({
-      ...profile,
+    const docId = data.email.replace(/[^a-zA-Z0-9]/g, '_');
+    const payload = {
+      ...data,
       lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (e) { console.error("Firestore save failed:", e); }
+    };
+    await db.collection("users").doc(docId).set(payload, { merge: true });
+    console.info("💾 Data saved to Firestore for:", data.email);
+  } catch (e) {
+    console.error("Firestore save failed:", e);
+  }
 }
 
-// Log daily activity to Firestore
-async function logActivityToFirestore(userId, date, data) {
-  if (!db) return;
+// Load user profile from Firestore by email
+async function loadUserFromFirestore(email) {
+  if (!db || !email) return null;
   try {
-    await db.collection("activity").doc(`${userId}_${date}`).set({
-      userId, date, ...data,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (e) { console.error("Activity log failed:", e); }
+    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
+    const doc = await db.collection("users").doc(docId).get();
+    if (doc.exists) {
+      return doc.data();
+    }
+    return null;
+  } catch (e) {
+    console.error("Firestore load failed:", e);
+    return null;
+  }
 }
 
 // Save feedback to Firestore
@@ -77,23 +117,31 @@ async function saveFeedbackToFirestore(feedback) {
       ...feedback,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-  } catch (e) { console.error("Feedback save failed:", e); }
+  } catch (e) {
+    console.error("Feedback save failed:", e);
+  }
 }
 
 // Fetch all users (admin only)
 async function fetchAllUsers() {
   if (!db) return [];
   try {
-    const snap = await db.collection("users").orderBy("lastLogin", "desc").get();
+    const snap = await db.collection("users").orderBy("lastLogin", "desc").limit(100).get();
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error("Fetch users failed:", e); return []; }
+  } catch (e) {
+    console.error("Fetch users failed:", e);
+    return [];
+  }
 }
 
 // Fetch all feedback (admin only)
 async function fetchAllFeedback() {
   if (!db) return [];
   try {
-    const snap = await db.collection("feedback").orderBy("createdAt", "desc").get();
+    const snap = await db.collection("feedback").orderBy("createdAt", "desc").limit(50).get();
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error("Fetch feedback failed:", e); return []; }
+  } catch (e) {
+    console.error("Fetch feedback failed:", e);
+    return [];
+  }
 }
