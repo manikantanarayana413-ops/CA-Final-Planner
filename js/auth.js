@@ -78,6 +78,12 @@ async function performLogin() {
     setOk('Signing in...');
     const { user } = await auth.signInWithEmailAndPassword(email, pass);
 
+    if (!user.emailVerified) {
+      setError('Please verify your email address before logging in.');
+      await auth.signOut();
+      return;
+    }
+
     setOk('Loading your study plan in real-time...');
     
     const docId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
