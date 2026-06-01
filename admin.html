@@ -220,14 +220,14 @@
     
     <div class="form-group mb-4" style="text-align:left">
       <label>Admin Access Password</label>
-      <input type="password" class="form-input mt-1" id="admin-pass" placeholder="••••••••••••" style="text-align:center" onkeydown="if(event.key==='Enter') loginAdmin()"/>
+      <input type="password" class="form-input mt-1" id="admin-pass" placeholder="••••••••••••" style="text-align:center"/>
     </div>
     
     <button class="btn btn-primary btn-full btn-lg" onclick="loginAdmin()">
       Verify Password & Unlock 🔓
     </button>
     
-    <p class="text-3xs text-secondary mt-4">Contact the system administrator if you need access.</p>
+    <p class="text-3xs text-secondary mt-4">Demo default password: <code style="color:var(--admin-gold)">cafinal@admin2025</code></p>
   </div>
 </div>
 
@@ -483,7 +483,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
