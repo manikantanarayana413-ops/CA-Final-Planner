@@ -5,6 +5,7 @@
 // Global Auth State
 let currentAuthUser = null;
 let pendingSignUpEmail = null;
+let signupInProgress = false;
 
 // Initialize Auth Listeners
 function initAuthListeners() {
@@ -41,8 +42,22 @@ function showLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.remove('hidden');
-    showLoginStep();
+    resetLoginModal();
   }
+}
+
+// Reset Login Modal to initial state
+function resetLoginModal() {
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error-msg').textContent = '';
+  document.getElementById('password-group').style.display = 'none';
+  document.getElementById('login-submit-btn').style.display = 'inline-block';
+  document.getElementById('login-signup-btn').textContent = 'Sign Up';
+  document.getElementById('login-signup-btn').style.display = 'inline-block';
+  document.getElementById('login-back-btn').style.display = 'none';
+  document.getElementById('login-verify-section').style.display = 'none';
+  signupInProgress = false;
 }
 
 // Hide Login Modal
@@ -50,77 +65,53 @@ function hideLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.add('hidden');
-    document.getElementById('login-email').value = '';
-    document.getElementById('login-password').value = '';
-    document.getElementById('login-error-msg').textContent = '';
-    pendingSignUpEmail = null;
-    showLoginStep();
+    resetLoginModal();
   }
-}
-
-// Show Login Step (email + password)
-function showLoginStep() {
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
-  const loginBtn = document.getElementById('login-submit-btn');
-  const signupBtn = document.getElementById('login-signup-btn');
-  const backBtn = document.getElementById('login-back-btn');
-  const verifySection = document.getElementById('login-verify-section');
-
-  emailInput.style.display = 'block';
-  passwordInput.style.display = 'block';
-  loginBtn.style.display = 'inline-block';
-  signupBtn.style.display = 'inline-block';
-  backBtn.style.display = 'none';
-  if (verifySection) verifySection.style.display = 'none';
-
-  emailInput.placeholder = 'your@email.com';
-  passwordInput.placeholder = '••••••••';
 }
 
 // Show Signup Step (email only)
 function showSignupStep() {
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
-  const loginBtn = document.getElementById('login-submit-btn');
-  const signupBtn = document.getElementById('login-signup-btn');
-  const backBtn = document.getElementById('login-back-btn');
-  const verifySection = document.getElementById('login-verify-section');
-
-  emailInput.style.display = 'block';
-  passwordInput.style.display = 'none';
-  loginBtn.style.display = 'none';
-  signupBtn.textContent = '📧 Send Sign-Up Link';
-  signupBtn.style.display = 'inline-block';
-  backBtn.style.display = 'inline-block';
-  if (verifySection) verifySection.style.display = 'none';
-
-  emailInput.placeholder = 'Enter your email';
-  emailInput.value = '';
-  document.getElementById('login-error-msg').textContent = '';
+  document.getElementById('password-group').style.display = 'none';
+  document.getElementById('login-submit-btn').style.display = 'none';
+  document.getElementById('login-signup-btn').textContent = '📧 Send Sign-Up Link';
+  document.getElementById('login-signup-btn').style.display = 'inline-block';
+  document.getElementById('login-back-btn').style.display = 'inline-block';
+  document.getElementById('login-verify-section').style.display = 'none';
+  document.getElementById('login-email').focus();
+  signupInProgress = true;
 }
 
 // Show Verification Sent Step
 function showVerificationStep(email) {
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
-  const loginBtn = document.getElementById('login-submit-btn');
-  const signupBtn = document.getElementById('login-signup-btn');
-  const backBtn = document.getElementById('login-back-btn');
-  const verifySection = document.getElementById('login-verify-section');
+  document.getElementById('login-email').style.display = 'none';
+  document.getElementById('password-group').style.display = 'none';
+  document.getElementById('login-submit-btn').style.display = 'none';
+  document.getElementById('login-signup-btn').style.display = 'none';
+  document.getElementById('login-back-btn').style.display = 'inline-block';
+  document.getElementById('login-verify-section').style.display = 'block';
+  document.getElementById('verify-email-display').textContent = email;
+  pendingSignUpEmail = email;
+}
 
-  emailInput.style.display = 'none';
-  passwordInput.style.display = 'none';
-  loginBtn.style.display = 'none';
-  signupBtn.style.display = 'none';
-  backBtn.style.display = 'inline-block';
-  if (verifySection) {
-    verifySection.style.display = 'block';
-    document.getElementById('verify-email-display').textContent = email;
-    pendingSignUpEmail = email;
-  }
-
+// Show Login Step (email + password)
+function showLoginStep() {
+  document.getElementById('login-email').style.display = 'block';
+  document.getElementById('login-email').value = '';
+  document.getElementById('password-group').style.display = 'block';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-submit-btn').style.display = 'inline-block';
+  document.getElementById('login-submit-btn').textContent = 'Log In';
+  document.getElementById('login-signup-btn').textContent = 'Sign Up';
+  document.getElementById('login-signup-btn').style.display = 'inline-block';
+  document.getElementById('login-back-btn').style.display = 'none';
+  document.getElementById('login-verify-section').style.display = 'none';
   document.getElementById('login-error-msg').textContent = '';
+  signupInProgress = false;
+}
+
+// Go Back from Signup to Login
+function goBackToLogin() {
+  resetLoginModal();
 }
 
 // Perform Login
@@ -142,7 +133,7 @@ async function performLogin() {
   try {
     const result = await firebase.auth().signInWithEmailAndPassword(email, password);
     console.log("Login successful:", result.user.email);
-    showToast(`✅ Welcome back, ${result.user.displayName || result.user.email}!`);
+    showToast(`✅ Welcome back, ${result.user.displayName || 'Student'}!`);
     hideLoginModal();
   } catch (error) {
     console.error("Login error:", error.code, error.message);
@@ -170,7 +161,9 @@ async function performSignUp() {
     return;
   }
 
-  if (!email.includes('@')) {
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
     errorMsg.textContent = '⚠️ Please enter a valid email address.';
     return;
   }
@@ -181,57 +174,66 @@ async function performSignUp() {
   }
 
   try {
-    // Check if user already exists
+    // Show loading state
+    const signupBtn = document.getElementById('login-signup-btn');
+    const originalText = signupBtn.textContent;
+    signupBtn.textContent = '⏳ Sending...';
+    signupBtn.disabled = true;
+
+    // Check if user already exists by attempting password reset
     try {
       await firebase.auth().sendPasswordResetEmail(email);
-      // If this succeeds, user exists
-      showToast('📧 User exists! Password reset link sent. Check your email.');
-      errorMsg.textContent = '✅ If this email is registered, password reset link has been sent.';
+      // If this succeeds, user exists - show them password reset message
+      showToast('🔐 Email already registered! Check your email for password reset link.');
+      errorMsg.textContent = '✅ Email registered. Password reset link sent to your inbox.';
+      signupBtn.textContent = originalText;
+      signupBtn.disabled = false;
       return;
     } catch (checkError) {
       if (checkError.code !== 'auth/user-not-found') {
         throw checkError;
       }
-      // User not found, proceed with signup
+      // User not found - proceed with signup
     }
 
-    // Create new user with temporary password
-    const tempPassword = Math.random().toString(36).slice(-12); // Random secure password
+    // Create new user with temporary random password
+    const tempPassword = 'TempPass_' + Math.random().toString(36).slice(-12);
     const result = await firebase.auth().createUserWithEmailAndPassword(email, tempPassword);
     const user = result.user;
 
-    // Set display name
+    // Set display name from email
     const name = email.split('@')[0];
     await user.updateProfile({ displayName: name });
 
-    // Send password setup link (using sendPasswordResetEmail)
+    // Send password setup/confirmation email
     await firebase.auth().sendPasswordResetEmail(email);
 
-    console.log("Sign up email sent:", email);
+    console.log("Sign up email sent successfully to:", email);
     showToast('📧 Sign-up link sent! Check your email to set your password.');
 
-    // Show verification step
+    // Show verification step with instructions
     showVerificationStep(email);
     pendingSignUpEmail = email;
+
+    signupBtn.textContent = originalText;
+    signupBtn.disabled = false;
+
   } catch (error) {
     console.error("Sign up error:", error.code, error.message);
+    const signupBtn = document.getElementById('login-signup-btn');
+    signupBtn.disabled = false;
+    
     let msg = '❌ Sign up failed.';
     if (error.code === 'auth/email-already-in-use') {
       msg = '✅ Email already registered! Password reset link sent.';
-      showToast('📧 Check your email for password setup link.');
+      showToast('📧 Check your email for login instructions.');
     } else if (error.code === 'auth/invalid-email') {
-      msg = '❌ Invalid email format.';
+      msg = '⚠️ Invalid email format.';
     } else if (error.code === 'auth/weak-password') {
       msg = '❌ System error. Please try again.';
     }
     errorMsg.textContent = msg;
   }
-}
-
-// Go Back from Signup to Login
-function goBackToLogin() {
-  showLoginStep();
-  pendingSignUpEmail = null;
 }
 
 // Perform Logout
