@@ -34,31 +34,31 @@
       <span>CA Final <em>Planner</em></span>
     </div>
     <div class="nav-links">
-      <div class="nav-link active" data-section="dashboard" id="nav-dashboard">
+      <div class="nav-link active" data-section="dashboard" id="nav-dashboard" onclick="navigateTo('dashboard')">
         <span class="nav-icon">📊</span> Dashboard
       </div>
-      <div class="nav-link" data-section="timetable" id="nav-timetable">
+      <div class="nav-link" data-section="timetable" id="nav-timetable" onclick="navigateTo('timetable')">
         <span class="nav-icon">📅</span> Timetable
       </div>
-      <div class="nav-link" data-section="revision" id="nav-revision">
+      <div class="nav-link" data-section="revision" id="nav-revision" onclick="navigateTo('revision')">
         <span class="nav-icon">📖</span> Revision
       </div>
-      <div class="nav-link" data-section="tracker" id="nav-tracker">
+      <div class="nav-link" data-section="tracker" id="nav-tracker" onclick="navigateTo('tracker')">
         <span class="nav-icon">✅</span> Tracker
       </div>
-      <div class="nav-link" data-section="resources" id="nav-resources">
+      <div class="nav-link" data-section="resources" id="nav-resources" onclick="navigateTo('resources')">
         <span class="nav-icon">📚</span> Resources
       </div>
-      <div class="nav-link" data-section="strategy" id="nav-strategy">
+      <div class="nav-link" data-section="strategy" id="nav-strategy" onclick="navigateTo('strategy')">
         <span class="nav-icon">💡</span> Strategy
       </div>
-      <div class="nav-link" data-section="mocks" id="nav-mocks">
+      <div class="nav-link" data-section="mocks" id="nav-mocks" onclick="navigateTo('mocks')">
         <span class="nav-icon">📝</span> Mocks
       </div>
-      <div class="nav-link" data-section="friends" id="nav-friends">
+      <div class="nav-link" data-section="friends" id="nav-friends" onclick="navigateTo('friends')">
         <span class="nav-icon">🤝</span> Friends
       </div>
-      <div class="nav-link" data-section="feedback" id="nav-feedback">
+      <div class="nav-link" data-section="feedback" id="nav-feedback" onclick="navigateTo('feedback')">
         <span class="nav-icon">💬</span> Feedback
       </div>
     </div>
@@ -213,17 +213,17 @@
       <div class="features-grid">
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"The 40:60 principle changed everything for me. 40% concepts, 60% practice — and 3 revisions minimum. That's the CA Final secret."</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"The 40:60 principle changed everything for me. 40% concepts, 60% practice — and 3 revisions minimum. That's the secret!"</p>
           <div style="font-size:0.82rem;font-weight:700">CA Topper, AIR-3</div>
         </div>
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"As an article student, I studied just 2-3 hours daily on weekdays and 7-8 hours on weekends. Consistency is everything — not 12-hour marathons."</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"As an article student, I studied just 2-3 hours daily on weekdays and 7-8 hours on weekends. Consistency is key!"</p>
           <div style="font-size:0.82rem;font-weight:700">CA Final Passer, Article Student</div>
         </div>
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"Never skip ICAI Study Material. Your faculty is a guide; ICAI SM is your exam bible. RTPs and MTPs alone can get you to 60%."</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"Never skip ICAI Study Material. Your faculty is a guide; ICAI SM is your exam bible. RTPs and MTPs alone can turn things around."</p>
           <div style="font-size:0.82rem;font-weight:700">Rank Holder, Both Groups</div>
         </div>
       </div>
@@ -316,7 +316,7 @@
       </div>
 
       <!-- Broadcast Banner (admin messages) -->
-      <div id="broadcast-banner" class="hidden" style="grid-column:1/-1;background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.25);border-radius:var(--radius-lg);padding:1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;">
+      <div id="broadcast-banner" class="hidden" style="grid-column:1/-1;background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.25);border-radius:var(--radius-lg);padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem">
         <span>📢</span>
         <span id="broadcast-text" style="font-size:0.9rem;font-weight:500;"></span>
       </div>
@@ -565,12 +565,12 @@
       <div class="card-title mb-4" style="font-size:1rem;color:var(--gold)">📝 Exam Writing Strategy</div>
       <div class="card mb-8">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.5rem">
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⏰</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">15-Minute Reading Time</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Use the reading time to identify easy questions, plan your order, and allocate time per question. Never waste this window.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">✍️</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">LOC Format for Audit</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Law → Observation → Conclusion. Every Audit answer needs this structure. ICAI examiners reward presentation.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📊</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Show Full Workings</h4><p style="font-size:0.82rem;color:var(--text-secondary)">For FR, AFM, DT, IDT — always show full computation workings. Even if the final answer is wrong, you earn step marks.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⚡</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">1.5 Min Per Mark Rule</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Budget 1.5 minutes per mark. For a 10-mark question: 15 minutes maximum. Practice this during mock tests.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📝</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Headings & Structure</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Use clear headings, subheadings, and numbered points. An organized answer is easier to mark — and scores higher.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">🎯</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Attempt All Questions</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Never leave a question blank. Even a framework answer or a partially correct solution can fetch 2-3 marks.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⏰</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">15-Minute Reading Time</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Use your reading time wisely. Plan answers, prioritize questions by marks and difficulty.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">✍️</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">LOC Format for Audit</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Letter of Confirmation: Follow ICAI standard format for audit procedures and conclusions.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📊</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Show Full Workings</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Examiners award partial marks for method. Show all calculations, assumptions, and formulas.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⚡</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">1.5 Min Per Mark Rule</h4><p style="font-size:0.82rem;color:var(--text-secondary)">40-mark question = 60 minutes. Allocate time proportionally to maximize your score.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📝</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Headings & Structure</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Clear formatting with headings, bullet points, and highlighted key points improves readability.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">🎯</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Attempt All Questions</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Even partial attempts earn marks. Avoid leaving any question completely unanswered.</p></div>
         </div>
       </div>
     </div>
@@ -638,7 +638,7 @@
     </div>
   </section>
 
-  <!-- ══ MOCK TEST TRACKER (Inside Tracker Section conceptually, but added as new section) ═══════════════════════════════════════ -->
+  <!-- ══ MOCK TEST TRACKER ═════════════════════════════════ -->
   <section id="section-mocks" class="section hidden">
     <div class="tracker-wrapper">
       <div class="strategy-header">
@@ -674,7 +674,7 @@
     </div>
   </section>
 
-  <!-- ══ FRIENDS / GROUPS (POSITIVE COMPETITION) ═══════════════════════════════════════ -->
+  <!-- ══ FRIENDS / GROUPS ═════════════════════════════════ -->
   <section id="section-friends" class="section hidden">
     <div class="tracker-wrapper">
       <div class="strategy-header">
@@ -719,7 +719,7 @@
         <!-- Left Side: Profile Card & Quick Actions -->
         <div>
           <div class="card text-center" style="padding: 1.5rem 1rem;">
-            <div id="prof-avatar-circle" style="width:90px;height:90px;border-radius:50%;background:rgba(245,197,24,0.1);border:2px solid var(--gold);color:var(--gold);font-size:2.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">U</div>
+            <div id="prof-avatar-circle" style="width:90px;height:90px;border-radius:50%;background:rgba(245,197,24,0.1);border:2px solid var(--gold);color:var(--gold);font-size:2.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">U</div>
             <h3 id="prof-display-name" style="font-size:1.1rem;font-weight:700;">Student</h3>
             <p id="prof-display-email" class="text-xs text-muted mt-1">student@email.com</p>
             <div id="prof-display-mode" class="mode-badge fulltime mt-2" style="display:inline-block;">Full-time</div>
@@ -732,8 +732,6 @@
             <input type="file" id="import-backup-file" style="display:none;" onchange="importDataBackup(event)"/>
             <button class="btn btn-ghost btn-sm btn-full text-red mt-2" onclick="confirmResetAll()">🔄 Hard Reset App Data</button>
           </div>
-
-
         </div>
 
         <!-- Right Side: Study Customizer Form -->
@@ -845,7 +843,7 @@
             <div class="card-title">📢 Post Study Board Broadcast</div>
             <p class="text-xs text-secondary mb-3">Publish announcement banners that instantly display on all active student dashboards.</p>
             <div class="form-group mb-3">
-              <textarea class="form-textarea" id="admin-broadcast-msg" placeholder="e.g. Study tips marathon starting tonight at 8 PM! Direct Tax amendments sheets are fully updated..." style="height:80px;"></textarea>
+              <textarea class="form-textarea" id="admin-broadcast-msg" placeholder="e.g. Study tips marathon starting tonight at 8 PM! Direct Tax amendments sheets are fully updated..." style="height:100px"></textarea>
             </div>
             <div style="display:flex;gap:0.75rem">
               <button class="btn btn-primary btn-sm" onclick="publishAdminBroadcast()">📢 Publish Board Broadcast</button>
@@ -914,7 +912,7 @@
 </div>
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
-<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;">
+<div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem">
   <div class="modal-container" style="max-width: 400px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
@@ -939,7 +937,7 @@
 </div>
 
 <!-- ══ PROFILE & SETTINGS MODAL ══════════════════════════════════════ -->
-<div id="profile-modal" class="hidden" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;">
+<div id="profile-modal" class="hidden" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem">
   <div class="modal-container" style="max-width: 500px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Profile & Settings</div>
@@ -998,32 +996,55 @@
       var loader = document.getElementById('loading-overlay');
       if (loader && !loader.classList.contains('hidden')) {
         loader.style.opacity = '0';
-        setTimeout(function() { loader.classList.add('hidden'); }, 400);
+        setTimeout(() => loader.classList.add('hidden'), 500);
       }
     }, 5000);
   });
 </script>
 
-<!-- ══ FIREBASE SDKs — loaded SYNCHRONOUSLY so they are ready before our app runs ══ -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FIREBASE SDK SCRIPTS (11.0.0 LTS) — LOADED FIRST                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js"></script>
 
-<!-- SheetJS for Excel export -->
-<script async src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"
-  onerror="window.__cdnFailed.xlsx=true;"></script>
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- APP CONFIGURATION & DATA (Load after Firebase SDK)                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script src="js/firebase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/features.js"></script>
 
-<!-- Chart.js (admin panel only) -->
-<script async src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
-  onerror="window.__cdnFailed.chartjs=true;"></script>
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- CORE APP LOGIC (Load after config & data)                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
 
-<!-- ══ LOCAL SCRIPTS — loaded after Firebase so auth/db are available ══ -->
-<!-- Script order: firebase-config → data → features → app -->
-<script src="js/firebase-config.js?v=6"></script>
-<script src="js/data.js?v=6"></script>
-<script src="js/features.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- THIRD-PARTY LIBRARIES FOR EXPORT FEATURES                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- CDN FAILURE HANDLER (Detect if scripts failed to load)                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+  // Detect if Firebase failed to load
+  if (typeof firebase === 'undefined') {
+    window.__cdnFailed.firebase = true;
+    console.warn("⚠️ Firebase SDK failed to load. Running in offline mode (localStorage only).");
+  }
+  
+  // Detect if SheetJS failed to load
+  if (typeof XLSX === 'undefined') {
+    window.__cdnFailed.xlsx = true;
+    console.warn("⚠️ SheetJS CDN failed to load. Excel export will use CSV fallback.");
+  }
+</script>
 
 </body>
 </html>
