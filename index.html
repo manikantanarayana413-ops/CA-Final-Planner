@@ -1028,5 +1028,39 @@
 <script src="js/auth.js?v=2"></script>
 <script src="js/features.js?v=2"></script>
 
+<!-- BULLETPROOF BUTTON WIRING — runs absolutely last, ensures buttons always work -->
+<script>
+  // Wire up all buttons that need JS functions
+  // This runs after all scripts are loaded and guarantees buttons work
+  document.addEventListener('DOMContentLoaded', function() {
+    // Force hide loader after all scripts are done
+    setTimeout(function() {
+      var loader = document.getElementById('loading-overlay');
+      if (loader) {
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(function() { loader.classList.add('hidden'); }, 500);
+      }
+    }, 1500);
+
+    // Hero Login button
+    var heroLoginBtn = document.getElementById('hero-login-btn');
+    if (heroLoginBtn) {
+      heroLoginBtn.onclick = function() {
+        var modal = document.getElementById('login-modal');
+        if (modal) modal.classList.remove('hidden');
+      };
+    }
+
+    // Hero Start button
+    var heroStartBtn = document.getElementById('hero-start-btn');
+    if (heroStartBtn) {
+      heroStartBtn.onclick = function() {
+        if (typeof startOnboarding === 'function') startOnboarding();
+      };
+    }
+  });
+</script>
+
 </body>
 </html>
