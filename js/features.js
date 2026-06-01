@@ -1,154 +1,3 @@
-// ============================================================
-// CA FINAL PLANNER - ADVANCED FEATURES
-// Includes: Auth, Profile Settings, Drag & Drop, Friends, Mocks
-// ============================================================
-
-// ── AUTHENTICATION & LOGIN ──────────────────────────────────
-function showLoginModal() {
-  document.getElementById('login-modal').classList.remove('hidden');
-}
-
-function hideLoginModal() {
-  document.getElementById('login-modal').classList.add('hidden');
-}
-window.showLoginModal = showLoginModal;
-window.hideLoginModal = hideLoginModal;
-
-// ── PROFILE MODAL ─────────────────────────────────────────
-function showProfileModal() {
-  document.getElementById('profile-modal').classList.remove('hidden');
-}
-function hideProfileModal() {
-  document.getElementById('profile-modal').classList.add('hidden');
-}
-function saveProfileSettings() {
-  hideProfileModal();
-  showToast('✅ Settings saved.');
-}
-window.showProfileModal = showProfileModal;
-window.hideProfileModal = hideProfileModal;
-window.saveProfileSettings = saveProfileSettings;
-
-async function performLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errorMsg = document.getElementById('login-error-msg');
-  
-  if (!email || !pass) {
-    errorMsg.textContent = 'Please enter both email and password.';
-    return;
-  }
-  
-  if (!FEATURES.firebaseEnabled || !window.firebase) {
-    // Offline simulated login
-    const offlineProfiles = JSON.parse(localStorage.getItem('offline_profiles') || '{}');
-    if (offlineProfiles[email]) {
-      if (offlineProfiles[email].password === pass) {
-        STATE.profile = offlineProfiles[email].data;
-        STATE.timetable = JSON.parse(localStorage.getItem(`timetable_${email}`) || '[]');
-        STATE.tracker = JSON.parse(localStorage.getItem(`tracker_${email}`) || '{}');
-        STATE.revision = JSON.parse(localStorage.getItem(`revision_${email}`) || '{}');
-        hideLoginModal();
-        navigateTo('dashboard');
-        renderDashboard();
-      } else {
-        errorMsg.textContent = 'Invalid credentials.';
-      }
-    } else {
-      errorMsg.textContent = 'No account found. Please sign up through the Start Planning flow.';
-    }
-    return;
-  }
-  
-  try {
-    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
-    const user = userCredential.user;
-    
-    // Load user data from Firestore
-    const db = firebase.firestore();
-    const doc = await db.collection('users').doc(user.email).get();
-    
-    if (doc.exists) {
-      const data = doc.data();
-      
-      const profileData = { ...data };
-      delete profileData.timetable;
-      delete profileData.tracker;
-      delete profileData.revision;
-      delete profileData.mocks;
-      delete profileData.friends;
-      delete profileData.lastLogin;
-      delete profileData.updatedAt;
-
-      STATE.profile = profileData;
-      STATE.timetable = data.timetable || [];
-      STATE.tracker = data.tracker || {};
-      STATE.revision = data.revision || {};
-      STATE.mocks = data.mocks || [];
-      STATE.friends = data.friends || [];
-      
-      saveProfileState(); // Sync locally
-      hideLoginModal();
-      document.getElementById('main-nav')?.classList.remove('hidden');
-      navigateTo('dashboard');
-      renderDashboard();
-    } else {
-      // User is authenticated but hasn't completed onboarding wizard yet.
-      hideLoginModal();
-      startOnboarding();
-    }
-  } catch (error) {
-    errorMsg.textContent = error.message;
-  }
-}
-window.performLogin = performLogin;
-
-async function performSignUp() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errorMsg = document.getElementById('login-error-msg');
-  
-  if (!email || !pass) {
-    errorMsg.textContent = 'Please enter both email and password.';
-    return;
-  }
-
-  if (!FEATURES.firebaseEnabled || !window.firebase) {
-    errorMsg.textContent = 'Sign up is only available when online.';
-    return;
-  }
-
-  try {
-    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
-    errorMsg.style.color = 'var(--emerald)';
-    errorMsg.textContent = 'Sign up successful! You can now start planning.';
-    setTimeout(() => {
-      hideLoginModal();
-      startOnboarding();
-    }, 1500);
-  } catch (error) {
-    errorMsg.style.color = 'var(--red)';
-    errorMsg.textContent = error.message;
-  }
-}
-window.performSignUp = performSignUp;
-
-function performLogout() {
-  if (FEATURES.firebaseEnabled && window.firebase) {
-    firebase.auth().signOut();
-  }
-  localStorage.removeItem(KEYS.profile);
-  localStorage.removeItem(KEYS.timetable);
-  localStorage.removeItem(KEYS.tracker);
-  localStorage.removeItem(KEYS.revision);
-  STATE.profile = null;
-  hideProfileModal();
-  navigateTo('landing');
-  window.location.reload();
-}
-window.performLogout = performLogout;
-
-// ── DEDICATED PROFILE & SETTINGS PAGE ────────────────────────
 function renderProfilePage() {
   if (!STATE.profile) return;
 
@@ -167,7 +16,7 @@ function renderProfilePage() {
   const displayMode = document.getElementById('prof-display-mode');
   if (displayMode) {
     const isArticle = STATE.profile.studentMode === 'articleship';
-    displayMode.textContent = isArticle ? '💼 Articleship Mode' : '🎓 Full-Time Mode';
+    displayMode.textContent = isArticle ? 'ðŸ’¼ Articleship Mode' : 'ðŸŽ“ Full-Time Mode';
     displayMode.className = `mode-badge ${isArticle ? 'articleship' : 'fulltime'} mt-2`;
   }
 
@@ -233,7 +82,7 @@ function saveDedicatedProfileSettings() {
   const excludeSundays = document.getElementById('profile-exclude-sundays').checked;
 
   if (!name || !email) {
-    showToast('❌ Please fill in your name and email.', 'error');
+    showToast('âŒ Please fill in your name and email.', 'error');
     return;
   }
 
@@ -258,7 +107,7 @@ function saveDedicatedProfileSettings() {
   saveProfileState();
 
   if (needsRegen) {
-    showToast('🔄 Core plan updated! Regenerating timetable...');
+    showToast('ðŸ”„ Core plan updated! Regenerating timetable...');
     setTimeout(() => {
       // Re-trigger timetable generator from app.js using the updated profile settings
       if (typeof generateStudyPlanner === 'function') {
@@ -270,7 +119,7 @@ function saveDedicatedProfileSettings() {
       }
     }, 1500);
   } else {
-    showToast('✅ Profile and study targets successfully updated!');
+    showToast('âœ… Profile and study targets successfully updated!');
     renderProfilePage();
     renderDashboard();
     navigateTo('dashboard');
@@ -278,14 +127,14 @@ function saveDedicatedProfileSettings() {
 }
 window.saveDedicatedProfileSettings = saveDedicatedProfileSettings;
 
-// ── BACKUP, EXPORT & RESET ACTIONS ──────────────────────────
+// â”€â”€ BACKUP, EXPORT & RESET ACTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function exportDataBackup() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(STATE));
   const dlAnchorElem = document.createElement('a');
   dlAnchorElem.setAttribute("href", dataStr);
   dlAnchorElem.setAttribute("download", `ca_final_planner_backup_${new Date().toISOString().split('T')[0]}.json`);
   dlAnchorElem.click();
-  showToast('📥 Backup downloaded successfully!');
+  showToast('ðŸ“¥ Backup downloaded successfully!');
 }
 window.exportDataBackup = exportDataBackup;
 
@@ -297,13 +146,13 @@ function importDataBackup(event) {
       if (parsedData.profile) {
         STATE = parsedData;
         saveProfileState();
-        showToast('✅ Backup imported successfully! Reloading...');
+        showToast('âœ… Backup imported successfully! Reloading...');
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        showToast('❌ Invalid backup file format.', 'error');
+        showToast('âŒ Invalid backup file format.', 'error');
       }
     } catch (err) {
-      showToast('❌ Failed to parse backup file.', 'error');
+      showToast('âŒ Failed to parse backup file.', 'error');
     }
   };
   fileReader.readAsText(event.target.files[0]);
@@ -311,7 +160,7 @@ function importDataBackup(event) {
 window.importDataBackup = importDataBackup;
 
 function confirmResetAll() {
-  if (confirm("🚨 WARNING: Are you absolutely sure you want to hard reset the study planner? This will permanently delete all your progress, customized timetable records, and daily logs!")) {
+  if (confirm("ðŸš¨ WARNING: Are you absolutely sure you want to hard reset the study planner? This will permanently delete all your progress, customized timetable records, and daily logs!")) {
     clearAllData();
   }
 }
@@ -331,71 +180,66 @@ function promptAdminLogin() {
 }
 window.promptAdminLogin = promptAdminLogin;
 
+let adminUnsubUsers = null;
+let adminUnsubFeedback = null;
+
 function renderAdminPage() {
-  // Stats
   const statUsers = document.getElementById('admin-stat-users');
   const statStreak = document.getElementById('admin-stat-streak');
   const statFeedback = document.getElementById('admin-stat-feedback');
 
-  // Load student directory
-  // In offline mode, we simulate/mirror using active user, or fetch all from database if connected
-  let allUsers = [];
-  let feedbackList = [];
-  
-  // Seed current user for display
-  if (STATE.profile) {
-    allUsers.push({
-      name: STATE.profile.name,
-      email: STATE.profile.email,
-      studentMode: STATE.profile.studentMode,
-      attempt: STATE.profile.attempt,
-      streak: STATE.streak,
-      lastLogin: new Date().toISOString()
-    });
-  }
-
-  // Check if we have additional cached entries
-  const localFeedbacks = JSON.parse(localStorage.getItem('admin_feedbacks_db') || '[]');
-  const localDirectory = JSON.parse(localStorage.getItem('admin_users_db') || '[]');
-  
-  allUsers = [...allUsers, ...localDirectory];
-  feedbackList = [...localFeedbacks];
-
-  if (statUsers) statUsers.textContent = allUsers.length;
-  if (statStreak) statStreak.textContent = allUsers.reduce((acc, curr) => acc + (curr.streak || 0), 0);
-  if (statFeedback) statFeedback.textContent = feedbackList.length;
-
-  // Render Table
-  const table = document.getElementById('admin-users-table');
-  if (table) {
-    table.innerHTML = allUsers.map(u => `
-      <tr>
-        <td style="font-weight:600;">${u.name}<br/><span class="text-3xs text-secondary">${u.email}</span></td>
-        <td><span class="mode-badge ${u.studentMode === 'articleship' ? 'articleship' : 'fulltime'}">${u.studentMode}</span></td>
-        <td style="text-transform:uppercase;font-weight:700;">${u.attempt}</td>
-        <td>🔥 ${u.streak || 0}</td>
-        <td class="text-3xs text-secondary">${new Date(u.lastLogin).toLocaleDateString()}</td>
-      </tr>
-    `).join('');
-  }
-
-  // Render Feedback List
-  const feedbackContainer = document.getElementById('admin-feedback-list');
-  if (feedbackContainer) {
-    if (feedbackList.length > 0) {
-      feedbackContainer.innerHTML = feedbackList.map(f => `
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.5rem;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;font-weight:700;color:var(--gold)">
-            <span>${'⭐'.repeat(f.stars)}</span>
-            <span style="color:var(--text-secondary);font-weight:400;font-size:0.65rem;">${f.feature || 'General'}</span>
-          </div>
-          <p class="text-xs mt-1" style="color:var(--text-primary)">"${f.text || 'No comment.'}"</p>
-          <div class="text-3xs text-secondary mt-1 text-right">— ${f.mode || 'Student'}</div>
-        </div>
-      `).join('');
-    } else {
-      feedbackContainer.innerHTML = `<p class="text-xs text-muted text-center" style="padding:2rem 0;">No student feedback submitted yet.</p>`;
+  if (FEATURES.firebaseEnabled && typeof firebase !== 'undefined' && db) {
+    if (!adminUnsubUsers) {
+      adminUnsubUsers = db.collection('users').onSnapshot(snap => {
+        let allUsers = [];
+        snap.forEach(doc => allUsers.push(doc.data()));
+        
+        if (statUsers) statUsers.textContent = allUsers.length;
+        if (statStreak) statStreak.textContent = allUsers.reduce((acc, curr) => acc + (curr.streak || 0), 0);
+        
+        const table = document.getElementById('admin-users-table');
+        if (table) {
+          table.innerHTML = allUsers.map(u => `
+            <tr>
+              <td style="font-weight:600;">${u.name || 'Unknown'}<br/><span class="text-3xs text-secondary">${u.email || ''}</span></td>
+              <td><span class="mode-badge ${u.studentMode === 'articleship' ? 'articleship' : 'fulltime'}">${u.studentMode || 'Unknown'}</span></td>
+              <td style="text-transform:uppercase;font-weight:700;">${u.attempt || 'N/A'}</td>
+              <td>🔥 ${u.streak || 0}</td>
+              <td class="text-3xs text-secondary">${u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin).toLocaleDateString() : 'N/A'}</td>
+            </tr>
+          `).join('');
+        }
+      });
     }
+
+    if (!adminUnsubFeedback) {
+      adminUnsubFeedback = db.collection('feedback').orderBy("createdAt", "desc").onSnapshot(snap => {
+        let feedbackList = [];
+        snap.forEach(doc => feedbackList.push(doc.data()));
+        
+        if (statFeedback) statFeedback.textContent = feedbackList.length;
+        
+        const feedbackContainer = document.getElementById('admin-feedback-list');
+        if (feedbackContainer) {
+          if (feedbackList.length > 0) {
+            feedbackContainer.innerHTML = feedbackList.map(f => `
+              <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;font-weight:700;color:var(--gold)">
+                  <span>${'⭐'.repeat(f.stars || 5)}</span>
+                  <span style="color:var(--text-secondary);font-weight:400;font-size:0.65rem;">${f.feature || 'General'}</span>
+                </div>
+                <p class="text-xs mt-1" style="color:var(--text-primary)">"${f.text || 'No comment.'}"</p>
+                <div class="text-3xs text-secondary mt-1 text-right">— ${f.mode || 'Student'}</div>
+              </div>
+            `).join('');
+          } else {
+            feedbackContainer.innerHTML = `<p class="text-xs text-muted text-center" style="padding:2rem 0;">No student feedback submitted yet.</p>`;
+          }
+        }
+      });
+    }
+  } else {
+     if (statUsers) statUsers.textContent = "Offline";
   }
 
   // Set current broadcast textarea value
@@ -409,11 +253,11 @@ function publishAdminBroadcast() {
   const msg = document.getElementById('admin-broadcast-msg').value.trim();
   if (msg) {
     localStorage.setItem('admin_broadcast', msg);
-    showToast('📢 Global broadcast banner published successfully!');
+    showToast('ðŸ“¢ Global broadcast banner published successfully!');
     renderAdminPage();
     renderDashboard();
   } else {
-    showToast('❌ Broadcast announcement message cannot be blank!', 'error');
+    showToast('âŒ Broadcast announcement message cannot be blank!', 'error');
   }
 }
 window.publishAdminBroadcast = publishAdminBroadcast;
@@ -422,13 +266,13 @@ function clearAdminBroadcast() {
   localStorage.removeItem('admin_broadcast');
   const area = document.getElementById('admin-broadcast-msg');
   if (area) area.value = '';
-  showToast('📢 Broadcast banner cleared.');
+  showToast('ðŸ“¢ Broadcast banner cleared.');
   renderAdminPage();
   renderDashboard();
 }
 window.clearAdminBroadcast = clearAdminBroadcast;
 
-// ── DRAG AND DROP TRACKER ───────────────────────────────────
+// â”€â”€ DRAG AND DROP TRACKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // To allow moving sessions between days or reordering.
 let draggedSession = null;
 let draggedFromDate = null;
@@ -485,9 +329,14 @@ function initDragAndDrop() {
   });
 }
 
-// renderTracker is defined in app.js. initDragAndDrop() is called from within it.
+// Hook into renderTracker via override
+const originalRenderTracker = window.renderTracker;
+window.renderTracker = function() {
+  if (originalRenderTracker) originalRenderTracker();
+  initDragAndDrop();
+};
 
-// ── MOCK TEST TRACKER ───────────────────────────────────────
+// â”€â”€ MOCK TEST TRACKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function initMockSelect() {
   const select = document.getElementById('mock-subject-select');
   if (select && STATE.profile) {
@@ -534,7 +383,7 @@ function saveMockTest() {
   const marks = parseInt(document.getElementById('mock-marks-input').value);
 
   if (!series || !dateStr || isNaN(marks) || marks < 0 || marks > 100) {
-    showToast('⚠️ Please fill all details correctly.');
+    showToast('âš ï¸ Please fill all details correctly.');
     return;
   }
 
@@ -542,11 +391,11 @@ function saveMockTest() {
   STATE.mocks.push({ id: Date.now(), subjectId, series, date: dateStr, marks });
   saveProfileState();
   renderMockTests();
-  showToast('📝 Mock result saved!');
+  showToast('ðŸ“ Mock result saved!');
 }
 window.saveMockTest = saveMockTest;
 
-// ── FRIENDS & GROUPS ────────────────────────────────────────
+// â”€â”€ FRIENDS & GROUPS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderFriends() {
   const codeEl = document.getElementById('my-friend-code');
   if (codeEl && STATE.profile) {
@@ -594,7 +443,7 @@ function generateFriendCode() {
 function copyFriendCode() {
   const code = document.getElementById('my-friend-code').value;
   navigator.clipboard.writeText(code);
-  showToast('📋 Friend code copied!');
+  showToast('ðŸ“‹ Friend code copied!');
 }
 window.copyFriendCode = copyFriendCode;
 
@@ -602,13 +451,13 @@ function addFriend() {
   const code = document.getElementById('add-friend-input').value.trim().toUpperCase();
   if (!code) return;
   if (code === STATE.profile.friendCode) {
-    showToast('⚠️ You cannot add yourself.');
+    showToast('âš ï¸ You cannot add yourself.');
     return;
   }
 
   if (!STATE.friends) STATE.friends = [];
   if (STATE.friends.find(f => f.code === code)) {
-    showToast('⚠️ Friend already added.');
+    showToast('âš ï¸ Friend already added.');
     return;
   }
 
@@ -617,7 +466,7 @@ function addFriend() {
   saveProfileState();
   document.getElementById('add-friend-input').value = '';
   renderFriends();
-  showToast('🤝 Friend added to your group!');
+  showToast('ðŸ¤ Friend added to your group!');
 }
 window.addFriend = addFriend;
 
@@ -634,4 +483,10 @@ function getWeeklyHours(trackerObj) {
   return hrs;
 }
 
-// Navigation hooks are handled inside navigateTo() in app.js
+// Hook into navigation to render sections
+const originalNavigateTo = window.navigateTo;
+window.navigateTo = function(sectionId, isPopState = false) {
+  if (originalNavigateTo) originalNavigateTo(sectionId, isPopState);
+  if (sectionId === 'mocks') renderMockTests();
+  if (sectionId === 'friends') renderFriends();
+};
