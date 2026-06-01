@@ -17,9 +17,6 @@ let ADMIN_STATE = {
 
 document.addEventListener('DOMContentLoaded', () => {
   initStarsCanvas();
-
-  // Initialize Firebase so db/auth are available for syncAdminData
-  initFirebase();
   
   // Check if session already active
   if (sessionStorage.getItem('ca_admin_session') === 'active') {
@@ -330,8 +327,8 @@ function renderUsersTable(filteredList = null) {
         <td>
           <div style="display:flex;align-items:center;gap:0.4rem">
             <span style="font-weight:700;width:30px;">${u.completionPercent}%</span>
-            <div style="height:5px;flex:1;min-width:60px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
-              <div style="height:100%;width:${u.completionPercent}%;background:var(--admin-cyan);border-radius:3px;transition:width 0.5s ease"></div>
+            <div class="modal-progress" style="height:5px;flex:1;min-width:60px">
+              <div class="modal-progress-bar" style="width:${u.completionPercent}%;background:var(--admin-cyan)"></div>
             </div>
           </div>
         </td>
@@ -482,10 +479,6 @@ window.exportFeedbackToCSV = exportFeedbackToCSV;
 
 function renderAnalyticsCharts() {
   if (ADMIN_STATE.activeTab !== 'analytics') return;
-  if (typeof Chart === 'undefined') {
-    console.warn('Chart.js not yet loaded — analytics charts skipped.');
-    return;
-  }
 
   // Clear existing instances to prevent overlays
   Object.values(ADMIN_STATE.charts).forEach(ch => {
@@ -656,14 +649,10 @@ function loadFeatureFlags() {
   // Seed defaults if empty
   if(localStorage.getItem('flag_excel') === null) localStorage.setItem('flag_excel', 'true');
   if(localStorage.getItem('flag_pomo') === null) localStorage.setItem('flag_pomo', 'true');
-
-  const excelEl = document.getElementById('flag-excel');
-  const pomoEl  = document.getElementById('flag-pomo');
-  const dbEl    = document.getElementById('flag-db');
-
-  if (excelEl) excelEl.checked = localStorage.getItem('flag_excel') === 'true';
-  if (pomoEl)  pomoEl.checked  = localStorage.getItem('flag_pomo') === 'true';
-  if (dbEl)    dbEl.checked    = FEATURES.firebaseEnabled;
+  
+  document.getElementById('flag-excel').checked = localStorage.getItem('flag_excel') === 'true';
+  document.getElementById('flag-pomo').checked = localStorage.getItem('flag_pomo') === 'true';
+  document.getElementById('flag-db').checked = FEATURES.firebaseEnabled;
 }
 
 function toggleFeatureFlag(flag, enabled) {
@@ -686,7 +675,7 @@ function showToast(msg) {
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = 'toast';
+  toast.className = 'toast-box';
   toast.innerHTML = msg;
 
   container.appendChild(toast);
