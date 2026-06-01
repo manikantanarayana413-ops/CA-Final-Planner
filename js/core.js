@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // INITIALIZATION & SPA ROUTING
 // ============================================================
 
@@ -55,7 +55,7 @@ function loadStateFromStorage() {
       STATE.timetable = timetable ? JSON.parse(timetable) : [];
       STATE.tracker = tracker ? JSON.parse(tracker) : {};
       STATE.revision = revision ? JSON.parse(revision) : {};
-      calculateStreak();
+      if (typeof calculateStreak === 'function') calculateStreak();
       
       // Load Pomodoro Count
       const savedPomoDate = localStorage.getItem(KEYS.pomoDate);
@@ -146,12 +146,13 @@ function navigateTo(sectionId, isPopState = false) {
     else if (sectionId === 'feedback') initFeedbackStars();
     
     // Apply admin feature flags dynamically
-    applyFeatureFlags();
+    if (typeof applyFeatureFlags === 'function') applyFeatureFlags();
   } else if (sectionId !== 'landing' && sectionId !== 'onboarding') {
     // Redirect un-onboarded users
     navigateTo('landing');
   }
 }
+window.navigateTo = navigateTo;
 
 function setupRouting() {
   window.addEventListener('popstate', (e) => {
