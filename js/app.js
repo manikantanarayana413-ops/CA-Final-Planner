@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     const loader = document.getElementById('loading-overlay');
     if (loader) {
+      loader.style.pointerEvents = 'none';
       loader.style.opacity = '0';
       setTimeout(() => loader.classList.add('hidden'), 500);
     }
@@ -2473,7 +2474,8 @@ function downloadCSVFallback() {
       }
     });
 
-    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('
+');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
