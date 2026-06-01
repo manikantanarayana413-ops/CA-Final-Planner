@@ -1,326 +1,172 @@
 // ============================================================
-// AUTHENTICATION & LOGIN SYSTEM — CA Final Planner
+// CA FINAL PLANNER - AUTHENTICATION
+// Auth logic, Modals, Firebase Sync
 // ============================================================
 
-// Global Auth State
-let currentAuthUser = null;
-let pendingSignUpEmail = null;
-let signupInProgress = false;
-
-// Initialize Auth Listeners
-function initAuthListeners() {
-  if (!FEATURES.firebaseEnabled || !firebase || !firebase.auth) {
-    console.log("Firebase auth not available, running in offline mode");
-    return;
-  }
-
-  firebase.auth().onAuthStateChanged((user) => {
-    currentAuthUser = user;
-    console.log("Auth state changed:", user ? "User logged in" : "User logged out");
-    
-    if (user) {
-      // User is signed in
-      STATE.profile = {
-        name: user.displayName || user.email.split('@')[0],
-        email: user.email,
-        uid: user.uid,
-        id: user.uid
-      };
-      localStorage.setItem('ca_final_user_uid', user.uid);
-      document.getElementById('main-nav')?.classList.remove('hidden');
-      hideLoginModal();
-      navigateTo('dashboard');
-    } else {
-      // User is signed out
-      document.getElementById('main-nav')?.classList.add('hidden');
-    }
-  });
-}
-
-// Show Login Modal
+// ── MODAL HELPERS ─────────────────────────────────────────────
 function showLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.remove('hidden');
-    resetLoginModal();
+    const err = document.getElementById('login-error-msg');
+    if (err) { err.textContent = ''; err.style.color = 'var(--red)'; }
   }
 }
-
-// Reset Login Modal to initial state
-function resetLoginModal() {
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-password').value = '';
-  document.getElementById('login-error-msg').textContent = '';
-  document.getElementById('password-group').style.display = 'none';
-  document.getElementById('login-submit-btn').style.display = 'inline-block';
-  document.getElementById('login-signup-btn').textContent = 'Sign Up';
-  document.getElementById('login-signup-btn').style.display = 'inline-block';
-  document.getElementById('login-back-btn').style.display = 'none';
-  document.getElementById('login-verify-section').style.display = 'none';
-  signupInProgress = false;
-}
-
-// Hide Login Modal
 function hideLoginModal() {
   const modal = document.getElementById('login-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    resetLoginModal();
-  }
+  if (modal) modal.classList.add('hidden');
 }
-
-// Show Signup Step (email only)
-function showSignupStep() {
-  document.getElementById('password-group').style.display = 'none';
-  document.getElementById('login-submit-btn').style.display = 'none';
-  document.getElementById('login-signup-btn').textContent = '📧 Send Sign-Up Link';
-  document.getElementById('login-signup-btn').style.display = 'inline-block';
-  document.getElementById('login-back-btn').style.display = 'inline-block';
-  document.getElementById('login-verify-section').style.display = 'none';
-  document.getElementById('login-email').focus();
-  signupInProgress = true;
-}
-
-// Show Verification Sent Step
-function showVerificationStep(email) {
-  document.getElementById('login-email').style.display = 'none';
-  document.getElementById('password-group').style.display = 'none';
-  document.getElementById('login-submit-btn').style.display = 'none';
-  document.getElementById('login-signup-btn').style.display = 'none';
-  document.getElementById('login-back-btn').style.display = 'inline-block';
-  document.getElementById('login-verify-section').style.display = 'block';
-  document.getElementById('verify-email-display').textContent = email;
-  pendingSignUpEmail = email;
-}
-
-// Show Login Step (email + password)
-function showLoginStep() {
-  document.getElementById('login-email').style.display = 'block';
-  document.getElementById('login-email').value = '';
-  document.getElementById('password-group').style.display = 'block';
-  document.getElementById('login-password').value = '';
-  document.getElementById('login-submit-btn').style.display = 'inline-block';
-  document.getElementById('login-submit-btn').textContent = 'Log In';
-  document.getElementById('login-signup-btn').textContent = 'Sign Up';
-  document.getElementById('login-signup-btn').style.display = 'inline-block';
-  document.getElementById('login-back-btn').style.display = 'none';
-  document.getElementById('login-verify-section').style.display = 'none';
-  document.getElementById('login-error-msg').textContent = '';
-  signupInProgress = false;
-}
-
-// Go Back from Signup to Login
-function goBackToLogin() {
-  resetLoginModal();
-}
-
-// Perform Login
-async function performLogin() {
-  const email = document.getElementById('login-email')?.value.trim();
-  const password = document.getElementById('login-password')?.value.trim();
-  const errorMsg = document.getElementById('login-error-msg');
-
-  if (!email || !password) {
-    errorMsg.textContent = '⚠️ Please enter email and password.';
-    return;
-  }
-
-  if (!FEATURES.firebaseEnabled || !firebase) {
-    errorMsg.textContent = '❌ Firebase not available. Running in offline mode.';
-    return;
-  }
-
-  try {
-    const result = await firebase.auth().signInWithEmailAndPassword(email, password);
-    console.log("Login successful:", result.user.email);
-    showToast(`✅ Welcome back, ${result.user.displayName || 'Student'}!`);
-    hideLoginModal();
-  } catch (error) {
-    console.error("Login error:", error.code, error.message);
-    let msg = '❌ Login failed.';
-    if (error.code === 'auth/user-not-found') {
-      msg = '❌ User not found. Please sign up first.';
-    } else if (error.code === 'auth/wrong-password') {
-      msg = '❌ Incorrect password. Try again.';
-    } else if (error.code === 'auth/invalid-email') {
-      msg = '❌ Invalid email format.';
-    } else if (error.code === 'auth/invalid-credential') {
-      msg = '❌ Invalid email or password.';
-    }
-    errorMsg.textContent = msg;
-  }
-}
-
-// Perform Sign Up (Email Only - Send Link)
-async function performSignUp() {
-  const email = document.getElementById('login-email')?.value.trim();
-  const errorMsg = document.getElementById('login-error-msg');
-
-  if (!email) {
-    errorMsg.textContent = '⚠️ Please enter your email address.';
-    return;
-  }
-
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    errorMsg.textContent = '⚠️ Please enter a valid email address.';
-    return;
-  }
-
-  if (!FEATURES.firebaseEnabled || !firebase) {
-    errorMsg.textContent = '❌ Firebase not available. Running in offline mode.';
-    return;
-  }
-
-  try {
-    // Show loading state
-    const signupBtn = document.getElementById('login-signup-btn');
-    const originalText = signupBtn.textContent;
-    signupBtn.textContent = '⏳ Sending...';
-    signupBtn.disabled = true;
-
-    // Check if user already exists by attempting password reset
-    try {
-      await firebase.auth().sendPasswordResetEmail(email);
-      // If this succeeds, user exists - show them password reset message
-      showToast('🔐 Email already registered! Check your email for password reset link.');
-      errorMsg.textContent = '✅ Email registered. Password reset link sent to your inbox.';
-      signupBtn.textContent = originalText;
-      signupBtn.disabled = false;
-      return;
-    } catch (checkError) {
-      if (checkError.code !== 'auth/user-not-found') {
-        throw checkError;
-      }
-      // User not found - proceed with signup
-    }
-
-    // Create new user with temporary random password
-    const tempPassword = 'TempPass_' + Math.random().toString(36).slice(-12);
-    const result = await firebase.auth().createUserWithEmailAndPassword(email, tempPassword);
-    const user = result.user;
-
-    // Set display name from email
-    const name = email.split('@')[0];
-    await user.updateProfile({ displayName: name });
-
-    // Send password setup/confirmation email
-    await firebase.auth().sendPasswordResetEmail(email);
-
-    console.log("Sign up email sent successfully to:", email);
-    showToast('📧 Sign-up link sent! Check your email to set your password.');
-
-    // Show verification step with instructions
-    showVerificationStep(email);
-    pendingSignUpEmail = email;
-
-    signupBtn.textContent = originalText;
-    signupBtn.disabled = false;
-
-  } catch (error) {
-    console.error("Sign up error:", error.code, error.message);
-    const signupBtn = document.getElementById('login-signup-btn');
-    signupBtn.disabled = false;
-    
-    let msg = '❌ Sign up failed.';
-    if (error.code === 'auth/email-already-in-use') {
-      msg = '✅ Email already registered! Password reset link sent.';
-      showToast('📧 Check your email for login instructions.');
-    } else if (error.code === 'auth/invalid-email') {
-      msg = '⚠️ Invalid email format.';
-    } else if (error.code === 'auth/weak-password') {
-      msg = '❌ System error. Please try again.';
-    }
-    errorMsg.textContent = msg;
-  }
-}
-
-// Perform Logout
-async function performLogout() {
-  if (!FEATURES.firebaseEnabled || !firebase) {
-    // Offline logout - just clear localStorage
-    localStorage.clear();
-    STATE.profile = null;
-    STATE.timetable = [];
-    STATE.tracker = {};
-    STATE.revision = {};
-    document.getElementById('main-nav')?.classList.add('hidden');
-    navigateTo('landing');
-    showToast('✅ Logged out successfully.');
-    return;
-  }
-
-  try {
-    await firebase.auth().signOut();
-    console.log("Logout successful");
-    
-    // Clear local data
-    localStorage.clear();
-    STATE.profile = null;
-    STATE.timetable = [];
-    STATE.tracker = {};
-    STATE.revision = {};
-    
-    document.getElementById('main-nav')?.classList.add('hidden');
-    hideProfileModal();
-    navigateTo('landing');
-    showToast('✅ Logged out successfully.');
-  } catch (error) {
-    console.error("Logout error:", error);
-    showToast('❌ Logout failed.');
-  }
-}
-
-// Admin Login
-function promptAdminLogin() {
-  const password = prompt('🔒 Enter Admin Password:');
-  if (password === ADMIN_PASSWORD) {
-    STATE.profile = {
-      name: 'Admin',
-      email: 'admin@cafinalplanner.com',
-      id: 'admin_' + Date.now(),
-      isAdmin: true
-    };
-    localStorage.setItem(KEYS.profile, JSON.stringify(STATE.profile));
-    document.getElementById('main-nav')?.classList.remove('hidden');
-    navigateTo('admin');
-    showToast('🔑 Admin mode activated.');
-  } else if (password !== null) {
-    showToast('❌ Incorrect admin password.');
-  }
-}
-
-// Show Profile Modal
-function showProfileModal() {
-  const modal = document.getElementById('profile-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-  }
-}
-
-// Hide Profile Modal
-function hideProfileModal() {
-  const modal = document.getElementById('profile-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-}
-
-// Initialize Auth on page load
-document.addEventListener('DOMContentLoaded', () => {
-  initAuthListeners();
-});
-
-// Expose functions to window
 window.showLoginModal = showLoginModal;
 window.hideLoginModal = hideLoginModal;
-window.performLogin = performLogin;
+
+// ── SIGN UP ───────────────────────────────────────────────────
+async function performSignUp() {
+  const email    = (document.getElementById('login-email')?.value || '').trim();
+  const pass     = document.getElementById('login-password')?.value || '';
+  const errorMsg = document.getElementById('login-error-msg');
+
+  const setError = (msg) => { if (errorMsg) { errorMsg.style.color = 'var(--red)'; errorMsg.textContent = msg; } };
+  const setOk    = (msg) => { if (errorMsg) { errorMsg.style.color = 'var(--emerald)'; errorMsg.textContent = msg; } };
+
+  if (!email || !pass) { setError('Please enter both email and password.'); return; }
+  if (pass.length < 6) { setError('Password must be at least 6 characters.'); return; }
+
+  if (!FEATURES.firebaseEnabled || typeof firebase === 'undefined' || !auth) {
+    setError('Cannot sign up — Firebase is not connected. Check your internet connection.');
+    return;
+  }
+
+  try {
+    setOk('Creating account...');
+    const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+    const user = userCredential.user;
+    
+    setOk('Sending verification email...');
+    await user.sendEmailVerification();
+    
+    setOk('✅ Account created! Please check your email to verify your account, then launch your study wizard...');
+    setTimeout(() => {
+      hideLoginModal();
+      startOnboarding();
+    }, 2500);
+  } catch (error) {
+    console.error('Sign up error:', error);
+    setError(friendlyAuthError(error.code, error.message));
+  }
+}
 window.performSignUp = performSignUp;
-window.goBackToLogin = goBackToLogin;
-window.showLoginStep = showLoginStep;
-window.showSignupStep = showSignupStep;
+
+// ── LOG IN ────────────────────────────────────────────────────
+let unsubscribeSnapshot = null;
+
+async function performLogin() {
+  const email    = (document.getElementById('login-email')?.value || '').trim();
+  const pass     = document.getElementById('login-password')?.value || '';
+  const errorMsg = document.getElementById('login-error-msg');
+
+  const setError = (msg) => { if (errorMsg) { errorMsg.style.color = 'var(--red)'; errorMsg.textContent = msg; } };
+  const setOk    = (msg) => { if (errorMsg) { errorMsg.style.color = 'var(--emerald)'; errorMsg.textContent = msg; } };
+
+  if (!email || !pass) { setError('Please enter both email and password.'); return; }
+
+  if (!FEATURES.firebaseEnabled || typeof firebase === 'undefined' || !auth) {
+    setError('Cannot log in — Firebase is not connected. Check your internet connection.');
+    return;
+  }
+
+  try {
+    setOk('Signing in...');
+    const { user } = await auth.signInWithEmailAndPassword(email, pass);
+
+    setOk('Loading your study plan in real-time...');
+    
+    const docId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Set up real-time listener for this user
+    unsubscribeSnapshot = db.collection("users").doc(docId).onSnapshot((doc) => {
+      if (doc.exists) {
+        const savedData = doc.data();
+        if (savedData && savedData.name) {
+          const { timetable, tracker, revision, mocks, friends, lastLogin, updatedAt, ...profileFields } = savedData;
+          STATE.profile   = profileFields;
+          STATE.timetable = Array.isArray(timetable) ? timetable : [];
+          STATE.tracker   = tracker   || {};
+          STATE.revision  = revision  || {};
+          STATE.mocks     = mocks     || [];
+          STATE.friends   = friends   || [];
+
+          // Save locally just for quick reload cache
+          localStorage.setItem(KEYS.profile, JSON.stringify(STATE.profile));
+          localStorage.setItem(KEYS.timetable, JSON.stringify(STATE.timetable));
+          localStorage.setItem(KEYS.tracker, JSON.stringify(STATE.tracker));
+          localStorage.setItem(KEYS.revision, JSON.stringify(STATE.revision));
+
+          hideLoginModal();
+          document.getElementById('main-nav')?.classList.remove('hidden');
+          
+          if (typeof calculateStreak === 'function') calculateStreak();
+          
+          // Re-render UI if already logged in and it updates
+          if (STATE.activeSection === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
+          if (STATE.activeSection === 'admin' && typeof renderAdminPage === 'function') renderAdminPage();
+        }
+      } else {
+         // No profile yet, launch wizard
+         hideLoginModal();
+         startOnboarding();
+         showToast('Welcome! Let\'s set up your personalized study plan 🚀');
+      }
+    });
+
+    hideLoginModal();
+    document.getElementById('main-nav')?.classList.remove('hidden');
+    navigateTo('dashboard');
+    showToast('👋 Welcome back!');
+
+  } catch (error) {
+    console.error('Login error:', error);
+    setError(friendlyAuthError(error.code, error.message));
+  }
+}
+window.performLogin = performLogin;
+
+// ── LOGOUT ───────────────────────────────────────────────────
+function performLogout() {
+  if (unsubscribeSnapshot) {
+    unsubscribeSnapshot();
+    unsubscribeSnapshot = null;
+  }
+  if (FEATURES.firebaseEnabled && typeof firebase !== 'undefined' && auth) {
+    auth.signOut().catch(console.error);
+  }
+  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+  STATE.profile   = null;
+  STATE.timetable = [];
+  STATE.tracker   = {};
+  STATE.revision  = {};
+  STATE.mocks     = [];
+  STATE.friends   = [];
+  document.getElementById('main-nav')?.classList.add('hidden');
+  
+  if (typeof hideProfileModal === 'function') hideProfileModal();
+  
+  navigateTo('landing');
+}
 window.performLogout = performLogout;
-window.promptAdminLogin = promptAdminLogin;
-window.showProfileModal = showProfileModal;
-window.hideProfileModal = hideProfileModal;
+
+// ── AUTH ERROR MESSAGES ───────────────────────────────────────
+function friendlyAuthError(code, fallback) {
+  const map = {
+    'auth/user-not-found':       'No account found with this email. Please Sign Up first.',
+    'auth/wrong-password':       'Incorrect password. Please try again.',
+    'auth/invalid-email':        'Please enter a valid email address.',
+    'auth/email-already-in-use': 'This email is already registered. Please Log In instead.',
+    'auth/weak-password':        'Password must be at least 6 characters.',
+    'auth/too-many-requests':    'Too many failed attempts. Please wait a moment and try again.',
+    'auth/network-request-failed': 'Network error. Please check your internet connection.',
+    'auth/invalid-credential':   'Invalid email or password. Please check and try again.',
+  };
+  return map[code] || fallback || 'An unexpected error occurred. Please try again.';
+}
+
+
