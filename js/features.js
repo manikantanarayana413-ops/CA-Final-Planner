@@ -14,6 +14,21 @@ function hideLoginModal() {
 window.showLoginModal = showLoginModal;
 window.hideLoginModal = hideLoginModal;
 
+// ── PROFILE MODAL ─────────────────────────────────────────
+function showProfileModal() {
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+function hideProfileModal() {
+  document.getElementById('profile-modal').classList.add('hidden');
+}
+function saveProfileSettings() {
+  hideProfileModal();
+  showToast('✅ Settings saved.');
+}
+window.showProfileModal = showProfileModal;
+window.hideProfileModal = hideProfileModal;
+window.saveProfileSettings = saveProfileSettings;
+
 async function performLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-password').value;
@@ -74,6 +89,7 @@ async function performLogin() {
       
       saveProfileState(); // Sync locally
       hideLoginModal();
+      document.getElementById('main-nav')?.classList.remove('hidden');
       navigateTo('dashboard');
       renderDashboard();
     } else {
@@ -469,12 +485,7 @@ function initDragAndDrop() {
   });
 }
 
-// Hook into renderTracker via override
-const originalRenderTracker = window.renderTracker;
-window.renderTracker = function() {
-  if (originalRenderTracker) originalRenderTracker();
-  initDragAndDrop();
-};
+// renderTracker is defined in app.js. initDragAndDrop() is called from within it.
 
 // ── MOCK TEST TRACKER ───────────────────────────────────────
 function initMockSelect() {
