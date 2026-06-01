@@ -66,7 +66,7 @@
       <div class="nav-streak" id="nav-streak-display">
         🔥 <span id="nav-streak-val">0</span> day streak
       </div>
-      <div class="nav-avatar" id="nav-avatar" title="Profile">U</div>
+      <div class="nav-avatar" id="nav-avatar" title="Profile" onclick="showProfileModal()">U</div>
     </div>
   </div>
 </nav>
@@ -111,7 +111,7 @@
           Excel download — all in one place.
         </p>
         <div class="hero-cta">
-          <button class="btn btn-primary btn-lg" id="hero-start-btn">
+          <button class="btn btn-primary btn-lg" id="hero-start-btn" onclick="startOnboarding()">
             🚀 Start Planning Now
           </button>
           <button class="btn btn-secondary btn-lg" id="hero-login-btn" onclick="showLoginModal()">
@@ -120,7 +120,7 @@
           <button class="btn btn-ghost" onclick="promptAdminLogin()" title="Admin Login" style="padding: 0.5rem; opacity: 0.7; font-size: 1.2rem;">
             🔒
           </button>
-          <button class="btn btn-ghost btn-lg" id="hero-learn-btn">
+          <button class="btn btn-ghost btn-lg" id="hero-learn-btn" onclick="document.getElementById('features-section').scrollIntoView({behavior:'smooth'})">
             Learn How It Works ↓
           </button>
         </div>
@@ -213,17 +213,17 @@
       <div class="features-grid">
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"The 40:60 principle changed everything for me. 40% concepts, 60% practice — and 3 revisions minimum. That's the secret!"</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"The 40:60 principle changed everything for me. 40% concepts, 60% practice — and 3 revisions minimum. This planner made it systematic."</p>
           <div style="font-size:0.82rem;font-weight:700">CA Topper, AIR-3</div>
         </div>
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"As an article student, I studied just 2-3 hours daily on weekdays and 7-8 hours on weekends. Consistency is key!"</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"As an article student, I studied just 2-3 hours daily on weekdays and 7-8 hours on weekends. Consistency is key, and this planner kept me consistent."</p>
           <div style="font-size:0.82rem;font-weight:700">CA Final Passer, Article Student</div>
         </div>
         <div class="feature-card">
           <div style="font-size:1.5rem;margin-bottom:0.75rem">⭐⭐⭐⭐⭐</div>
-          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"Never skip ICAI Study Material. Your faculty is a guide; ICAI SM is your exam bible. RTPs and MTPs alone can turn things around."</p>
+          <p style="font-style:italic;color:var(--text-secondary);margin-bottom:1rem">"Never skip ICAI Study Material. Your faculty is a guide; ICAI SM is your exam bible. RTPs and MTPs alone can crack it."</p>
           <div style="font-size:0.82rem;font-weight:700">Rank Holder, Both Groups</div>
         </div>
       </div>
@@ -233,7 +233,7 @@
     <div style="text-align:center;padding:4rem 1.5rem;border-top:1px solid var(--border);">
       <h2 style="font-size:2rem;font-weight:800;margin-bottom:1rem;">Ready to <span class="gradient-text">Get Started?</span></h2>
       <p style="color:var(--text-secondary);margin-bottom:2rem;">Join thousands of CA Final aspirants with a personalized study plan.</p>
-      <button class="btn btn-primary btn-lg" id="footer-start-btn">🎯 Create My Study Plan</button>
+      <button class="btn btn-primary btn-lg" id="footer-start-btn" onclick="startOnboarding()">🎯 Create My Study Plan</button>
     </div>
   </section>
 
@@ -565,12 +565,12 @@
       <div class="card-title mb-4" style="font-size:1rem;color:var(--gold)">📝 Exam Writing Strategy</div>
       <div class="card mb-8">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.5rem">
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⏰</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">15-Minute Reading Time</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Use your reading time wisely. Plan answers, prioritize questions by marks and difficulty.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">✍️</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">LOC Format for Audit</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Letter of Confirmation: Follow ICAI standard format for audit procedures and conclusions.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📊</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Show Full Workings</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Examiners award partial marks for method. Show all calculations, assumptions, and formulas.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⚡</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">1.5 Min Per Mark Rule</h4><p style="font-size:0.82rem;color:var(--text-secondary)">40-mark question = 60 minutes. Allocate time proportionally to maximize your score.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📝</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Headings & Structure</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Clear formatting with headings, bullet points, and highlighted key points improves readability.</p></div>
-          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">🎯</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Attempt All Questions</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Even partial attempts earn marks. Avoid leaving any question completely unanswered.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⏰</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">15-Minute Reading Time</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Use carefully to select and plan questions. Don't write anything.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">✍️</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">LOC Format for Audit</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Letter of Comment is non-negotiable. Structure: Summary → LOC → Observations.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📊</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Show Full Workings</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Even if final answer is wrong, step marks fetch 60-70% of total.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">⚡</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">1.5 Min Per Mark Rule</h4><p style="font-size:0.82rem;color:var(--text-secondary)">4-hour paper × 60 marks = 240 minutes. Allocate: 15 min reading + 225 min writing.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">📝</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Headings & Structure</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Clear headings = easy scanning by examiners. Improves chances of bonus marks.</p></div>
+          <div><div style="font-size:1.25rem;margin-bottom:0.5rem">🎯</div><h4 style="margin-bottom:0.4rem;font-size:0.9rem">Attempt All Questions</h4><p style="font-size:0.82rem;color:var(--text-secondary)">Even partial attempts fetch 30-40 marks. Blanks fetch zero. Always attempt.</p></div>
         </div>
       </div>
     </div>
@@ -674,7 +674,7 @@
     </div>
   </section>
 
-  <!-- ══ FRIENDS / GROUPS ═════════════════════════════════ -->
+  <!-- ══ FRIENDS / GROUPS ══════════════════════════════════ -->
   <section id="section-friends" class="section hidden">
     <div class="tracker-wrapper">
       <div class="strategy-header">
@@ -707,7 +707,7 @@
     </div>
   </section>
 
-  <!-- ══ DEDICATED PROFILE PAGE ════════════════════════════════ -->
+  <!-- ══ DEDICATED PROFILE PAGE ════════════════════════════ -->
   <section id="section-profile" class="section hidden">
     <div class="tracker-wrapper" style="max-width: 900px;">
       <div class="strategy-header">
@@ -719,7 +719,7 @@
         <!-- Left Side: Profile Card & Quick Actions -->
         <div>
           <div class="card text-center" style="padding: 1.5rem 1rem;">
-            <div id="prof-avatar-circle" style="width:90px;height:90px;border-radius:50%;background:rgba(245,197,24,0.1);border:2px solid var(--gold);color:var(--gold);font-size:2.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">U</div>
+            <div id="prof-avatar-circle" style="width:90px;height:90px;border-radius:50%;background:rgba(245,197,24,0.1);border:2px solid var(--gold);color:var(--gold);font-size:2.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">S</div>
             <h3 id="prof-display-name" style="font-size:1.1rem;font-weight:700;">Student</h3>
             <p id="prof-display-email" class="text-xs text-muted mt-1">student@email.com</p>
             <div id="prof-display-mode" class="mode-badge fulltime mt-2" style="display:inline-block;">Full-time</div>
@@ -810,7 +810,7 @@
     </div>
   </section>
 
-  <!-- ══ UNIFIED SYSTEM ADMIN PANEL ════════════════════════════ -->
+  <!-- ══ UNIFIED SYSTEM ADMIN PANEL ════════════════════════ -->
   <section id="section-admin" class="section hidden">
     <div class="tracker-wrapper" style="max-width: 1200px;">
       <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:1rem;margin-bottom:1.5rem;">
@@ -843,7 +843,7 @@
             <div class="card-title">📢 Post Study Board Broadcast</div>
             <p class="text-xs text-secondary mb-3">Publish announcement banners that instantly display on all active student dashboards.</p>
             <div class="form-group mb-3">
-              <textarea class="form-textarea" id="admin-broadcast-msg" placeholder="e.g. Study tips marathon starting tonight at 8 PM! Direct Tax amendments sheets are fully updated..." style="height:100px"></textarea>
+              <textarea class="form-textarea" id="admin-broadcast-msg" placeholder="e.g. Study tips marathon starting tonight at 8 PM! Direct Tax amendments sheets are fully updated..." style="height:80px"></textarea>
             </div>
             <div style="display:flex;gap:0.75rem">
               <button class="btn btn-primary btn-sm" onclick="publishAdminBroadcast()">📢 Publish Board Broadcast</button>
@@ -913,25 +913,40 @@
 
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
 <div id="login-modal" class="hidden" style="position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem">
-  <div class="modal-container" style="max-width: 400px;">
+  <div class="modal-container" style="max-width: 420px;">
     <div class="modal-header">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Log In</div>
-      <button class="btn btn-ghost" onclick="hideLoginModal()" style="font-size:1.2rem;padding:0;height:auto">×</button>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--gold)" id="login-modal-title">Log In / Sign Up</div>
+      <button class="btn btn-ghost" onclick="hideLoginModal()" style="font-size:1.2rem;padding:0;height:auto;width:auto">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group mb-3">
-        <label>Email</label>
-        <input type="email" class="form-input" id="login-email" placeholder="your@email.com"/>
+        <label>Email Address</label>
+        <input type="email" class="form-input" id="login-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter') performLogin()"/>
       </div>
-      <div class="form-group mb-4">
+      <div class="form-group mb-4" id="password-group" style="display:none">
         <label>Password</label>
         <input type="password" class="form-input" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') performLogin()"/>
       </div>
-      <div style="display:flex;gap:1rem;margin-bottom:1rem">
-        <button class="btn btn-primary btn-full" onclick="performLogin()">Log In</button>
-        <button class="btn btn-secondary btn-full" onclick="performSignUp()">Sign Up</button>
+      
+      <!-- Verification Sent Message -->
+      <div id="login-verify-section" style="display:none;text-align:center;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:2rem;margin-bottom:1rem">📧</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:var(--gold)">Check Your Email!</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem">We've sent a sign-up link to:</p>
+        <div style="background:rgba(245,197,24,0.1);border:1px solid rgba(245,197,24,0.25);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.9rem;font-weight:600;word-break:break-all" id="verify-email-display">email@example.com</div>
+        <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem">Click the link in your email to:<br/>1️⃣ Set your password<br/>2️⃣ Complete your sign-up<br/>3️⃣ Log in to your account</p>
+        <div style="background:rgba(100,200,255,0.08);border:1px solid rgba(100,200,255,0.2);border-radius:var(--radius-sm);padding:0.75rem;font-size:0.75rem;color:var(--cyan)">
+          ℹ️ Link expires in 1 hour. Didn't receive it? Check spam folder or sign up again.
+        </div>
       </div>
-      <div class="text-center text-sm text-muted" id="login-error-msg" style="color:var(--red)"></div>
+
+      <div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <button class="btn btn-primary btn-full" id="login-submit-btn" onclick="performLogin()">Log In</button>
+        <button class="btn btn-secondary btn-full" id="login-signup-btn" onclick="showSignupStep()">Sign Up</button>
+      </div>
+      <button class="btn btn-ghost btn-full" id="login-back-btn" onclick="goBackToLogin()" style="display:none;margin-bottom:1rem">← Back to Login</button>
+      
+      <div class="text-center text-sm" id="login-error-msg" style="color:var(--red);min-height:1.2em"></div>
     </div>
   </div>
 </div>
@@ -941,7 +956,7 @@
   <div class="modal-container" style="max-width: 500px;">
     <div class="modal-header">
       <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">Profile & Settings</div>
-      <button class="btn btn-ghost" onclick="hideProfileModal()" style="font-size:1.2rem;padding:0;height:auto">×</button>
+      <button class="btn btn-ghost" onclick="hideProfileModal()" style="font-size:1.2rem;padding:0;height:auto;width:auto">×</button>
     </div>
     <div class="modal-body" id="profile-modal-body">
       <!-- Generated via JS -->
@@ -996,55 +1011,28 @@
       var loader = document.getElementById('loading-overlay');
       if (loader && !loader.classList.contains('hidden')) {
         loader.style.opacity = '0';
-        setTimeout(() => loader.classList.add('hidden'), 500);
+        loader.style.pointerEvents = 'none';
       }
     }, 5000);
   });
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- FIREBASE SDK SCRIPTS (11.0.0 LTS) — LOADED FIRST                      -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Firebase SDK (11.0.0 LTS) -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js"></script>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- APP CONFIGURATION & DATA (Load after Firebase SDK)                    -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- App Scripts -->
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/features.js"></script>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- CORE APP LOGIC (Load after config & data)                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/admin.js"></script>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- THIRD-PARTY LIBRARIES FOR EXPORT FEATURES                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SheetJS for Excel Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- CDN FAILURE HANDLER (Detect if scripts failed to load)                 -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<script>
-  // Detect if Firebase failed to load
-  if (typeof firebase === 'undefined') {
-    window.__cdnFailed.firebase = true;
-    console.warn("⚠️ Firebase SDK failed to load. Running in offline mode (localStorage only).");
-  }
-  
-  // Detect if SheetJS failed to load
-  if (typeof XLSX === 'undefined') {
-    window.__cdnFailed.xlsx = true;
-    console.warn("⚠️ SheetJS CDN failed to load. Excel export will use CSV fallback.");
-  }
-</script>
 
 </body>
 </html>
