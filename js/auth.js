@@ -10,25 +10,29 @@ function initGoogleSignIn() {
   if (isAuthInitialized) return;
   
   if (!window.firebase || !window.firebase.auth) {
-    console.warn("Firebase auth not ready");
+    console.warn("⚠️ Firebase auth not ready");
     return;
   }
 
   try {
     // Set up auth state listener
+    // This will fire after ALL scripts load, so app.js functions will exist
     firebase.auth().onAuthStateChanged((user) => {
+      console.log("Auth state changed:", user ? user.email : "logged out");
       currentGoogleUser = user;
+      
       if (user) {
-        onUserLoggedIn(user);
+        // Delay to ensure app.js is loaded
+        setTimeout(() => onUserLoggedIn(user), 100);
       } else {
-        onUserLoggedOut();
+        setTimeout(() => onUserLoggedOut(), 100);
       }
     });
     
     isAuthInitialized = true;
     console.log("✅ Google Sign-In initialized");
   } catch (e) {
-    console.error("Google Sign-In init failed:", e);
+    console.error("❌ Google Sign-In init failed:", e);
   }
 }
 
@@ -46,51 +50,65 @@ async function signInWithGoogle() {
     // Save user profile to Firestore
     await saveGoogleUserToFirestore(user);
     
-    showToast(`👋 Welcome, ${user.displayName}!`, 'success');
+    if (window.showToast) {
+      showToast(`👋 Welcome, ${user.displayName}!`, 'success');
+    }
+    
     return user;
   } catch (error) {
+    let message = '❌ Sign-in failed';
     if (error.code === 'auth/popup-blocked') {
-      showToast('❌ Pop-up blocked. Enable pop-ups and try again.', 'error');
-    } else if (error.code !== 'auth/cancelled-popup-request') {
-      showToast(`❌ Sign-in failed: ${error.message}`, 'error');
+      message = '❌ Pop-up blocked. Enable pop-ups and try again.';
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      console.log("User cancelled sign-in");
+      return null;
+    } else {
+      message = `❌ Sign-in failed: ${error.message}`;
     }
+    
+    if (window.showToast) {
+      showToast(message, 'error');
+    }
+    
     console.error("Google sign-in error:", error);
     return null;
   }
 }
 
-// Save Google user to Firestore
+// Save Google user to Firestore with proper user ID
 async function saveGoogleUserToFirestore(user) {
   if (!window.db || !user) return;
   
   try {
-    const docId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
-    await window.db.collection("users").doc(docId).set({
+    // Use Firebase UID as the document ID (more reliable than email)
+    const userId = user.uid;
+    
+    await window.db.collection("users").doc(userId).set({
+      uid: user.uid,
       email: user.email,
-      name: user.displayName,
-      photo: user.photoURL,
-      googleId: user.uid,
+      displayName: user.displayName || 'Student',
+      photoURL: user.photoURL || '',
       authMethod: 'google',
+      profileCompleted: false,
       lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
     
-    console.log("✅ User saved to Firestore");
+    console.log("✅ User saved to Firestore:", userId);
   } catch (e) {
-    console.error("Firestore save failed:", e);
+    console.error("❌ Firestore save failed:", e);
   }
 }
 
-// Load user profile from Firestore
-async function loadGoogleUserProfile(email) {
-  if (!window.db || !email) return null;
+// Load user profile from Firestore by UID
+async function loadGoogleUserProfile(uid) {
+  if (!window.db || !uid) return null;
   
   try {
-    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
-    const doc = await window.db.collection("users").doc(docId).get();
+    const doc = await window.db.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   } catch (e) {
-    console.error("Firestore load failed:", e);
+    console.error("❌ Firestore load failed:", e);
     return null;
   }
 }
@@ -98,12 +116,20 @@ async function loadGoogleUserProfile(email) {
 // Sign out
 async function signOutUser() {
   try {
-    await firebase.auth().signOut();
+    if (window.firebase && window.firebase.auth) {
+      await firebase.auth().signOut();
+    }
     currentGoogleUser = null;
-    showToast('👋 Signed out successfully', 'success');
-    navigateTo('landing');
+    
+    if (window.showToast) {
+      showToast('👋 Signed out successfully', 'success');
+    }
+    
+    // navigateTo will be called by onUserLoggedOut
   } catch (error) {
-    showToast(`❌ Sign-out failed: ${error.message}`, 'error');
+    if (window.showToast) {
+      showToast(`❌ Sign-out failed: ${error.message}`, 'error');
+    }
   }
 }
 
@@ -111,39 +137,87 @@ async function signOutUser() {
 async function onUserLoggedIn(user) {
   console.log("✅ User logged in:", user.email);
   
-  // Load user's data from Firestore
-  const profile = await loadGoogleUserProfile(user.email);
+  // Wait for app.js to be fully loaded
+  if (!window.STATE || !window.navigateTo) {
+    console.warn("⚠️ App not fully loaded yet, waiting...");
+    setTimeout(() => onUserLoggedIn(user), 500);
+    return;
+  }
   
-  // Set up STATE with user data
+  // Load user's profile from Firestore
+  const profile = await loadGoogleUserProfile(user.uid);
+  
+  // Initialize STATE if not already done
+  if (!window.STATE) {
+    window.STATE = {};
+  }
+  
+  // Check if user completed onboarding
   if (profile && profile.profileCompleted) {
-    STATE.profile = profile;
-    STATE.profile.email = user.email;
-    STATE.profile.name = user.displayName;
-    STATE.profile.photo = user.photoURL;
+    // User completed onboarding before
+    window.STATE.profile = profile;
+    window.STATE.profile.email = user.email;
+    window.STATE.profile.name = user.displayName;
+    window.STATE.profile.photo = user.photoURL;
     
-    // Load their saved data
-    loadUserData(STATE.profile.email);
+    // Show nav and dashboard
+    const nav = document.getElementById('main-nav');
+    if (nav) nav.classList.remove('hidden');
     
-    // Show dashboard
-    document.getElementById('main-nav')?.classList.remove('hidden');
-    navigateTo('dashboard');
+    window.navigateTo('dashboard');
+    window.renderDashboard();
   } else {
-    // First time user - go to onboarding
-    document.getElementById('main-nav')?.classList.remove('hidden');
-    navigateTo('onboarding');
+    // First time user - go to onboarding wizard
+    console.log("First time user, showing onboarding");
+    
+    window.STATE.profile = {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName,
+      photo: user.photoURL,
+      profileCompleted: false
+    };
+    
+    // Show nav
+    const nav = document.getElementById('main-nav');
+    if (nav) nav.classList.remove('hidden');
+    
+    // Show onboarding
+    window.navigateTo('onboarding');
+    
+    if (window.renderWizardStep) {
+      window.renderWizardStep();
+    }
   }
 }
 
 // Called when user logs out
 function onUserLoggedOut() {
-  console.log("User logged out");
-  STATE.profile = null;
-  STATE.timetable = [];
-  STATE.tracker = {};
-  STATE.revision = {};
-  localStorage.clear();
-  document.getElementById('main-nav')?.classList.add('hidden');
-  navigateTo('landing');
+  console.log("👋 User logged out");
+  
+  if (!window.STATE) {
+    window.STATE = {};
+  }
+  
+  window.STATE.profile = null;
+  window.STATE.timetable = [];
+  window.STATE.tracker = {};
+  window.STATE.revision = {};
+  
+  if (window.localStorage) {
+    try {
+      localStorage.clear();
+    } catch (e) {}
+  }
+  
+  // Hide nav
+  const nav = document.getElementById('main-nav');
+  if (nav) nav.classList.add('hidden');
+  
+  // Go to landing
+  if (window.navigateTo) {
+    window.navigateTo('landing');
+  }
 }
 
 // Get current user
