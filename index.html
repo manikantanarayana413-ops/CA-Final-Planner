@@ -5,14 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="google-signin-client_id" content="305661559745-p7lbc3cj8p1r5m9k4v2x8q0j9r5m2b8c.apps.googleusercontent.com">
 <title>CA Final Planner — Your Personalized Study Companion</title>
-<meta name="description" content="A comprehensive, tailor-made study scheduler and planner for CA Final students. Personalized timetable, chapter-wise revision, free resources, Excel download, and more."/>
-<meta property="og:title" content="CA Final Planner"/>
-<meta property="og:description" content="Personalized CA Final study scheduler — built for toppers, designed for you."/>
-<meta property="og:type" content="website"/>
-<link rel="stylesheet" href="css/style.css"/>
-<!-- Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<meta name="description" content="A comprehensive, tailor-made study scheduler and planner for CA Final students."/>
+<link rel="stylesheet" href="css/style.css?v=8"/>
 </head>
 <body>
 
@@ -35,36 +29,18 @@
       <span>CA Final <em>Planner</em></span>
     </div>
     <div class="nav-links">
-      <div class="nav-link active" data-section="dashboard" id="nav-dashboard">
-        <span class="nav-icon">📊</span> Dashboard
-      </div>
-      <div class="nav-link" data-section="timetable" id="nav-timetable">
-        <span class="nav-icon">📅</span> Timetable
-      </div>
-      <div class="nav-link" data-section="revision" id="nav-revision">
-        <span class="nav-icon">📖</span> Revision
-      </div>
-      <div class="nav-link" data-section="tracker" id="nav-tracker">
-        <span class="nav-icon">✅</span> Tracker
-      </div>
-      <div class="nav-link" data-section="resources" id="nav-resources">
-        <span class="nav-icon">📚</span> Resources
-      </div>
-      <div class="nav-link" data-section="strategy" id="nav-strategy">
-        <span class="nav-icon">💡</span> Strategy
-      </div>
-      <div class="nav-link" data-section="mocks" id="nav-mocks">
-        <span class="nav-icon">📝</span> Mocks
-      </div>
-      <div class="nav-link" data-section="feedback" id="nav-feedback">
-        <span class="nav-icon">💬</span> Feedback
-      </div>
+      <div class="nav-link active" data-section="dashboard">📊 Dashboard</div>
+      <div class="nav-link" data-section="timetable">📅 Timetable</div>
+      <div class="nav-link" data-section="revision">📖 Revision</div>
+      <div class="nav-link" data-section="tracker">✅ Tracker</div>
+      <div class="nav-link" data-section="resources">📚 Resources</div>
+      <div class="nav-link" data-section="strategy">💡 Strategy</div>
+      <div class="nav-link" data-section="mocks">📝 Mocks</div>
+      <div class="nav-link" data-section="feedback">💬 Feedback</div>
     </div>
     <div class="nav-actions">
-      <div class="nav-streak" id="nav-streak-display">
-        🔥 <span id="nav-streak-val">0</span> day streak
-      </div>
-      <div class="nav-avatar" id="nav-avatar" title="Profile">U</div>
+      <div class="nav-streak" id="nav-streak-display">🔥 0 day streak</div>
+      <div class="nav-avatar" id="nav-avatar" title="Profile" onclick="showProfileMenu()">U</div>
     </div>
   </div>
 </nav>
@@ -72,84 +48,55 @@
 <!-- App Container -->
 <div id="app">
 
-  <!-- ══ LANDING PAGE ══════════════════════════════════════ -->
+  <!-- LANDING PAGE -->
   <section id="section-landing" class="section">
     <div class="hero">
       <div class="hero-bg"></div>
       <div class="hero-content">
-        <div class="hero-badge">
-          🏆 Built for CA Final Toppers · New Scheme Ready
-        </div>
-        <h1 class="hero-title">
-          Your <span class="gradient-text">CA Final</span><br/>Journey Starts Here
-        </h1>
-        <p class="hero-subtitle">
-          A personalized, AI-powered study planner designed for CA Final aspirants.
-          Get a tailor-made timetable, chapter-wise revision plan, free resources, and
-          Excel download — all in one place.
-        </p>
+        <div class="hero-badge">🏆 Built for CA Final Toppers · New Scheme Ready</div>
+        <h1 class="hero-title">Your <span class="gradient-text">CA Final</span><br/>Journey Starts Here</h1>
+        <p class="hero-subtitle">A personalized, AI-powered study planner designed for CA Final aspirants. Get a tailor-made timetable, chapter-wise revision plan, and more.</p>
+        
         <div class="hero-cta">
-          <button class="btn btn-primary btn-lg" id="hero-start-btn">
-            🚀 Start Planning Now
-          </button>
-          <button class="btn btn-secondary btn-lg" id="google-signin-btn" onclick="signInWithGoogle()">
-            🔐 Sign in with Google
-          </button>
-          <button class="btn btn-ghost btn-lg" id="hero-learn-btn">
-            Learn How It Works ↓
-          </button>
+          <button class="btn btn-primary btn-lg" id="hero-start-btn" type="button">🚀 Start Planning Now</button>
+          <button class="btn btn-secondary btn-lg" id="google-signin-btn" type="button" onclick="return signInWithGoogle()">🔐 Sign in with Google</button>
+          <button class="btn btn-ghost btn-lg" id="hero-learn-btn" type="button">Learn How It Works ↓</button>
         </div>
+        
         <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-num gradient-text">6</div>
-            <div class="hero-stat-label">CA Final Papers</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num gradient-text">80+</div>
-            <div class="hero-stat-label">Chapters Tracked</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num gradient-text">100%</div>
-            <div class="hero-stat-label">Free Resources</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num gradient-text">2yr / 3yr</div>
-            <div class="hero-stat-label">Articleship Support</div>
-          </div>
+          <div class="hero-stat"><div class="hero-stat-num gradient-text">6</div><div class="hero-stat-label">CA Final Papers</div></div>
+          <div class="hero-stat"><div class="hero-stat-num gradient-text">80+</div><div class="hero-stat-label">Chapters Tracked</div></div>
+          <div class="hero-stat"><div class="hero-stat-num gradient-text">100%</div><div class="hero-stat-label">Free Resources</div></div>
+          <div class="hero-stat"><div class="hero-stat-num gradient-text">2yr / 3yr</div><div class="hero-stat-label">Articleship Support</div></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ ONBOARDING MODAL ══════════════════════════════════════ -->
+  <!-- ONBOARDING MODAL -->
   <section id="section-onboarding" class="section hidden">
     <div id="modal-overlay" class="modal-overlay">
       <div class="modal-container">
         <div class="modal-header">
           <div>
-            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:0.25rem">
-              Step <span id="wizard-step-num">1</span> of 7
-            </div>
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-secondary);">Step <span id="wizard-step-num">1</span> of 7</div>
             <div style="font-size:1rem;font-weight:700;color:var(--gold)" id="wizard-step-title">Welcome</div>
           </div>
           <div style="font-size:2rem" id="wizard-step-emoji">👋</div>
         </div>
-        <div class="modal-progress">
-          <div class="modal-progress-bar" id="wizard-progress-bar" style="width:14%"></div>
-        </div>
+        <div class="modal-progress"><div class="modal-progress-bar" id="wizard-progress-bar" style="width:14%"></div></div>
         <div class="modal-body" id="wizard-body"></div>
         <div class="modal-footer">
-          <button class="btn btn-ghost" id="wizard-back-btn" onclick="wizardBack()" style="display:none">← Back</button>
+          <button class="btn btn-ghost" id="wizard-back-btn" onclick="return wizardBack()" style="display:none">← Back</button>
           <div style="margin-left:auto;display:flex;gap:0.75rem">
-            <div id="wizard-step-dots" style="display:flex;align-items:center;gap:0.4rem"></div>
-            <button class="btn btn-primary" id="wizard-next-btn" onclick="wizardNext()">Continue →</button>
+            <button class="btn btn-primary" id="wizard-next-btn" onclick="return wizardNext()">Continue →</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+  <!-- DASHBOARD -->
   <section id="section-dashboard" class="section hidden">
     <div class="dashboard-grid">
       <div class="welcome-banner">
@@ -172,48 +119,61 @@
 <!-- Toast Container -->
 <div id="toast-container"></div>
 
-<!-- Firebase Scripts (load first) -->
+<!-- Firebase Scripts (NO ASYNC) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<!-- Google Sign-In Script -->
+<!-- Google Sign-In -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<!-- Local Scripts (CORRECT ORDER: app.js BEFORE auth.js) -->
-<script src="js/firebase-config.js?v=8"></script>
-<script src="js/data.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
-<script src="js/features.js?v=8"></script>
-<script src="js/auth.js?v=8"></script>
+<!-- App Scripts (CORRECT ORDER) -->
+<script src="js/firebase-config.js?v=9"></script>
+<script src="js/data.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+<script src="js/features.js?v=9"></script>
+<script src="js/auth.js?v=9"></script>
 
-<!-- Initialize on load -->
+<!-- Init Script -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log("=== APP INITIALIZATION ===");
-    
-    // 1. Initialize Firebase
-    if (typeof initFirebase === 'function') {
-      initFirebase();
+window.appReady = false;
+
+function initApp() {
+  if (window.appReady) return;
+  window.appReady = true;
+  
+  console.log("=== APP INIT ===");
+  
+  // 1. Firebase
+  if (window.initFirebase) {
+    window.initFirebase();
+    console.log("✅ Firebase initialized");
+  }
+  
+  // 2. Google Auth
+  if (window.initGoogleSignIn) {
+    window.initGoogleSignIn();
+    console.log("✅ Google Auth initialized");
+  }
+  
+  // 3. Hide loader
+  setTimeout(() => {
+    const loader = document.getElementById('loading-overlay');
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.classList.add('hidden'), 500);
     }
-    
-    // 2. Initialize Google Sign-In (will set up auth state listener)
-    if (typeof initGoogleSignIn === 'function') {
-      initGoogleSignIn();
-    }
-    
-    // 3. Hide loading overlay
-    setTimeout(function() {
-      var loader = document.getElementById('loading-overlay');
-      if (loader) {
-        loader.style.opacity = '0';
-        loader.style.pointerEvents = 'none';
-        setTimeout(() => loader.classList.add('hidden'), 500);
-      }
-    }, 1500);
-    
-    console.log("✅ App initialized");
-  });
+  }, 1500);
+  
+  console.log("✅ App ready");
+}
+
+// Fire on DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 </script>
 
 </body>
