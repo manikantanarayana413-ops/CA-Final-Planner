@@ -1,68 +1,165 @@
 // ============================================================
-// CA FINAL PLANNER - AUTHENTICATION
+// GOOGLE AUTHENTICATION MODULE — CA Final Planner
 // ============================================================
 
-window.isLoginMode = true;
+let currentGoogleUser = null;
+let isAuthInitialized = false;
 
-function toggleAuthMode() {
-  window.isLoginMode = !window.isLoginMode;
-  const title = document.getElementById('modal-title');
-  const btn = document.getElementById('auth-main-btn');
-  const toggleText = document.getElementById('toggle-text');
+// Initialize Google Sign-In
+function initGoogleSignIn() {
+  if (isAuthInitialized) return;
+  
+  if (!window.firebase || !window.firebase.auth) {
+    console.warn("Firebase auth not ready");
+    return;
+  }
 
-  if (window.isLoginMode) {
-    title.textContent = 'Log In';
-    btn.textContent = 'Log In';
-    toggleText.innerHTML = 'Don\'t have an account? <a href="#" onclick="toggleAuthMode(); return false;">Sign Up</a>';
+  try {
+    // Set up auth state listener
+    firebase.auth().onAuthStateChanged((user) => {
+      currentGoogleUser = user;
+      if (user) {
+        onUserLoggedIn(user);
+      } else {
+        onUserLoggedOut();
+      }
+    });
+    
+    isAuthInitialized = true;
+    console.log("✅ Google Sign-In initialized");
+  } catch (e) {
+    console.error("Google Sign-In init failed:", e);
+  }
+}
+
+// Google Sign-In button click
+async function signInWithGoogle() {
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({
+      'prompt': 'consent'
+    });
+    
+    const result = await firebase.auth().signInWithPopup(provider);
+    const user = result.user;
+    
+    // Save user profile to Firestore
+    await saveGoogleUserToFirestore(user);
+    
+    showToast(`👋 Welcome, ${user.displayName}!`, 'success');
+    return user;
+  } catch (error) {
+    if (error.code === 'auth/popup-blocked') {
+      showToast('❌ Pop-up blocked. Enable pop-ups and try again.', 'error');
+    } else if (error.code !== 'auth/cancelled-popup-request') {
+      showToast(`❌ Sign-in failed: ${error.message}`, 'error');
+    }
+    console.error("Google sign-in error:", error);
+    return null;
+  }
+}
+
+// Save Google user to Firestore
+async function saveGoogleUserToFirestore(user) {
+  if (!window.db || !user) return;
+  
+  try {
+    const docId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
+    await window.db.collection("users").doc(docId).set({
+      email: user.email,
+      name: user.displayName,
+      photo: user.photoURL,
+      googleId: user.uid,
+      authMethod: 'google',
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    
+    console.log("✅ User saved to Firestore");
+  } catch (e) {
+    console.error("Firestore save failed:", e);
+  }
+}
+
+// Load user profile from Firestore
+async function loadGoogleUserProfile(email) {
+  if (!window.db || !email) return null;
+  
+  try {
+    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
+    const doc = await window.db.collection("users").doc(docId).get();
+    return doc.exists ? doc.data() : null;
+  } catch (e) {
+    console.error("Firestore load failed:", e);
+    return null;
+  }
+}
+
+// Sign out
+async function signOutUser() {
+  try {
+    await firebase.auth().signOut();
+    currentGoogleUser = null;
+    showToast('👋 Signed out successfully', 'success');
+    navigateTo('landing');
+  } catch (error) {
+    showToast(`❌ Sign-out failed: ${error.message}`, 'error');
+  }
+}
+
+// Called when user logs in
+async function onUserLoggedIn(user) {
+  console.log("✅ User logged in:", user.email);
+  
+  // Load user's data from Firestore
+  const profile = await loadGoogleUserProfile(user.email);
+  
+  // Set up STATE with user data
+  if (profile && profile.profileCompleted) {
+    STATE.profile = profile;
+    STATE.profile.email = user.email;
+    STATE.profile.name = user.displayName;
+    STATE.profile.photo = user.photoURL;
+    
+    // Load their saved data
+    loadUserData(STATE.profile.email);
+    
+    // Show dashboard
+    document.getElementById('main-nav')?.classList.remove('hidden');
+    navigateTo('dashboard');
   } else {
-    title.textContent = 'Sign Up';
-    btn.textContent = 'Sign Up';
-    toggleText.innerHTML = 'Already have an account? <a href="#" onclick="toggleAuthMode(); return false;">Log In</a>';
+    // First time user - go to onboarding
+    document.getElementById('main-nav')?.classList.remove('hidden');
+    navigateTo('onboarding');
   }
 }
-window.toggleAuthMode = toggleAuthMode;
 
-async function handleAuthAction() {
-  if (window.isLoginMode) await performLogin();
-  else await performSignUp();
+// Called when user logs out
+function onUserLoggedOut() {
+  console.log("User logged out");
+  STATE.profile = null;
+  STATE.timetable = [];
+  STATE.tracker = {};
+  STATE.revision = {};
+  localStorage.clear();
+  document.getElementById('main-nav')?.classList.add('hidden');
+  navigateTo('landing');
 }
-window.handleAuthAction = handleAuthAction;
 
-async function performSignUp() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errorMsg = document.getElementById('login-error-msg');
-
-  if (!email || !pass) { errorMsg.textContent = "Enter email & password."; return; }
-
-  try {
-    errorMsg.textContent = "Creating account...";
-    const userCredential = await window.auth.createUserWithEmailAndPassword(email, pass);
-    
-    // Explicitly send verification email
-    await userCredential.user.sendEmailVerification();
-    
-    alert("Account created! A verification email has been sent. Please check your inbox.");
-    hideLoginModal();
-  } catch (error) {
-    errorMsg.textContent = error.message;
-  }
+// Get current user
+function getCurrentUser() {
+  return currentGoogleUser;
 }
-window.performSignUp = performSignUp;
 
-async function performLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errorMsg = document.getElementById('login-error-msg');
-
-  try {
-    await window.auth.signInWithEmailAndPassword(email, pass);
-    hideLoginModal();
-    location.reload();
-  } catch (error) {
-    errorMsg.textContent = error.message;
-  }
+// Check if user is authenticated
+function isUserLoggedIn() {
+  return currentGoogleUser !== null;
 }
-window.performLogin = performLogin;
 
-// (Keep your existing performLogout and friendlyAuthError functions below)
+// Export to window
+window.initGoogleSignIn = initGoogleSignIn;
+window.signInWithGoogle = signInWithGoogle;
+window.signOutUser = signOutUser;
+window.getCurrentUser = getCurrentUser;
+window.isUserLoggedIn = isUserLoggedIn;
+
