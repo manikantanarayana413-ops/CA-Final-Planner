@@ -53,7 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('hero-start-btn')?.addEventListener('click', startOnboarding);
   document.getElementById('footer-start-btn')?.addEventListener('click', startOnboarding);
   document.getElementById('hero-learn-btn')?.addEventListener('click', () => {
-    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+    const target = document.getElementById('features-section');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigateTo('onboarding');
+    }
   });
 
   // Calendar month buttons
@@ -200,6 +205,7 @@ function navigateTo(sectionId, isPopState = false) {
     navigateTo('landing');
   }
 }
+window.navigateTo = navigateTo;
 
 function setupRouting() {
   window.addEventListener('popstate', (e) => {
@@ -305,11 +311,10 @@ let onboardingData = {
 
 function startOnboarding() {
   if (FEATURES.firebaseEnabled && window.firebase && !firebase.auth().currentUser) {
-    showLoginModal();
-    return;
+    showToast('Please sign in or continue as a guest to save your progress.');
   }
   currentStep = 1;
-  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.getElementById('modal-overlay')?.classList.remove('hidden');
   renderWizardStep();
 }
 
@@ -1201,6 +1206,7 @@ function toggleTodaySession(idx, completed) {
   }
 }
 window.toggleTodaySession = toggleTodaySession;
+window.renderDashboard = renderDashboard;
 
 // ============================================================
 // STUDY STREAK CALCULATING LOGIC
