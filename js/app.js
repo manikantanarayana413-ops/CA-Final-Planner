@@ -314,12 +314,13 @@ function startOnboarding() {
     showToast('Please sign in or continue as a guest to save your progress.');
   }
   currentStep = 1;
+  navigateTo('onboarding');
   document.getElementById('modal-overlay')?.classList.remove('hidden');
   renderWizardStep();
 }
 
 function closeWizard() {
-  document.getElementById('modal-overlay').classList.add('hidden');
+  document.getElementById('modal-overlay')?.classList.add('hidden');
 }
 
 function wizardNext() {
@@ -996,8 +997,8 @@ function renderDashboard() {
   }
 
   // Countdown timer
-  const attemptObj = ATTEMPTS.find(att => att.id === STATE.profile.attempt);
-  const examDate = new Date(attemptObj.date);
+  const attemptObj = ATTEMPTS.find(att => att.id === STATE.profile.attempt) || ATTEMPTS[0] || { date: new Date().toISOString(), label: 'Upcoming' };
+  const examDate = new Date(attemptObj.date || new Date().toISOString());
   const today = new Date();
   const msDiff = examDate - today;
   const daysCountdown = Math.ceil(msDiff / (1000 * 60 * 60 * 24));

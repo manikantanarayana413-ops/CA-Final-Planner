@@ -62,27 +62,28 @@ initFirebase();
 // ── FIRESTORE HELPERS FOR GOOGLE AUTH ────────────────────
 
 /**
- * Save Google user profile to Firestore
- * Called after successful Google login
+ * Save user profile to Firestore
  */
-async function saveGoogleUserProfile(googleUser) {
-  if (!window.db || !googleUser) return;
+async function saveUserToFirestore(user) {
+  if (!window.db || !user) return;
   
   try {
-    const userId = googleUser.uid;
-    const userRef = window.db.collection('users').doc(userId);
+    const uid = (user.uid || user.id || user.email.replace(/[^a-zA-Z0-9]/g, '_'));
+    const userRef = window.db.collection('users').doc(uid);
     
     await userRef.set({
-      uid: googleUser.uid,
-      email: googleUser.email,
-      displayName: googleUser.displayName || 'Student',
-      photoURL: googleUser.photoURL || '',
-      authMethod: 'google',
+      uid: uid,
+      email: user.email,
+      name: user.name || 'Student',
+      displayName: user.displayName || user.name || 'Student',
+      photoURL: user.photoURL || '',
+      authMethod: user.authMethod || 'google',
+      profileCompleted: user.profileCompleted !== undefined ? user.profileCompleted : true,
       lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: user.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
     
-    console.log("✅ Google user saved to Firestore");
+    console.log("✅ User saved to Firestore");
     return true;
   } catch (e) {
     console.error("❌ Save user profile failed:", e);
@@ -178,11 +179,31 @@ async function getBroadcastMessages() {
   }
 }
 
+/**
+ * Save feedback to Firestore
+ */
+async function saveFeedbackToFirestore(feedbackObj) {
+  if (!window.db) return false;
+  
+  try {
+    await window.db.collection('feedback').add({
+      ...feedbackObj,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log("✅ Feedback submitted to Firestore");
+    return true;
+  } catch (e) {
+    console.error("❌ Feedback submission failed:", e);
+    return false;
+  }
+}
+
 // Export to window
-window.saveGoogleUserProfile = saveGoogleUserProfile;
+window.saveUserToFirestore = saveUserToFirestore;
 window.loadUserProfile = loadUserProfile;
 window.saveUserStudyData = saveUserStudyData;
 window.loadUserStudyData = loadUserStudyData;
 window.submitFeedback = submitFeedback;
+window.saveFeedbackToFirestore = saveFeedbackToFirestore;
 window.getBroadcastMessages = getBroadcastMessages;
 

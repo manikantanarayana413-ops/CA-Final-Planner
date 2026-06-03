@@ -40,7 +40,7 @@
     </div>
     <div class="nav-actions">
       <div class="nav-streak" id="nav-streak-display">🔥 0 day streak</div>
-      <div class="nav-avatar" id="nav-avatar" title="Profile" onclick="showProfileMenu()">U</div>
+      <div class="nav-avatar" id="nav-avatar" title="Profile">U</div>
     </div>
   </div>
 </nav>
@@ -109,7 +109,7 @@
 
   <!-- ONBOARDING MODAL -->
   <section id="section-onboarding" class="section hidden">
-    <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-overlay" class="modal-overlay hidden">
       <div class="modal-container">
         <div class="modal-header">
           <div>
@@ -145,6 +145,338 @@
           </div>
         </div>
       </div>
+
+      <div class="card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.05)); border: 1px solid rgba(124,58,237,0.2); padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="font-size: 1.5rem;" id="phase-icon">🧠</div>
+          <div style="flex: 1;">
+            <div class="text-xs text-secondary">Current Study Phase</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--gold);" id="phase-name">Phase 1: Conceptual Clarity</div>
+          </div>
+          <div class="text-xs text-secondary">Day <span id="phase-day">1</span> of <span id="phase-total">120</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">📊 Subject Revision Progress</div>
+        <div class="subjects-grid" id="subject-rings-grid"></div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">🔥 Today's Study Sessions</div>
+        <div id="today-sessions-list"></div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">⏱️ Daily Progress</div>
+        <div id="hours-target-content"></div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">📅 This Week Overview</div>
+        <div id="week-strip" style="display: flex; gap: 0.5rem; justify-content: space-around;"></div>
+      </div>
+
+      <div id="broadcast-banner" class="card hidden" style="grid-column: 1 / -1; background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.2);">
+        <div class="text-sm" id="broadcast-text"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMETABLE -->
+  <section id="section-timetable" class="section hidden">
+    <div class="timetable-wrapper">
+      <div class="timetable-controls">
+        <h2>📅 Your Study Timetable</h2>
+        <div class="view-toggle">
+          <button class="active" id="cal-view-btn" onclick="setCalView('calendar')">Calendar View</button>
+          <button id="list-view-btn" onclick="setCalView('list')">List View</button>
+        </div>
+      </div>
+
+      <div id="calendar-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <button class="btn btn-ghost" id="prev-month-btn">← Previous</button>
+          <h3 id="cal-month-label" style="font-size: 1.2rem; font-weight: 700;">January 2026</h3>
+          <button class="btn btn-ghost" id="next-month-btn">Next →</button>
+        </div>
+        <div id="cal-headers" class="calendar-grid"></div>
+        <div id="cal-days-grid" class="calendar-grid"></div>
+      </div>
+
+      <div id="list-view" class="hidden">
+        <div id="week-list-container"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVISION PLANNER -->
+  <section id="section-revision" class="section hidden">
+    <div class="revision-wrapper">
+      <div class="revision-header">
+        <h2>📖 Chapter Revision Planner</h2>
+      </div>
+      
+      <div class="subject-tabs" id="revision-subject-tabs"></div>
+
+      <div class="revision-grid">
+        <div>
+          <div id="revision-chapters-header"></div>
+          <div class="chapters-list" id="chapters-list"></div>
+        </div>
+        <div class="revision-sidebar">
+          <div class="card">
+            <div class="card-title">📊 Revision Progress</div>
+            <div id="rev-subject-bars"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">💡 Revision Tips</div>
+            <div id="rev-strategy-tips"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACKER -->
+  <section id="section-tracker" class="section hidden">
+    <div class="tracker-wrapper">
+      <div class="tracker-date-nav">
+        <button class="btn btn-ghost" id="prev-day-btn">← Prev Day</button>
+        <h3 id="tracker-date-display">Today</h3>
+        <button class="btn btn-ghost" id="next-day-btn">Next Day →</button>
+      </div>
+
+      <div class="tracker-grid">
+        <div>
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-title">📝 Study Sessions Logged</div>
+            <div id="log-sessions-list"></div>
+            <button class="btn btn-primary btn-full mt-3" id="add-session-btn">+ Add Custom Session</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📋 Daily Notes</div>
+            <textarea class="form-textarea" id="daily-notes-input" placeholder="Write your daily observations, challenges, breakthroughs..."></textarea>
+            <button class="btn btn-secondary btn-full mt-2" onclick="saveNotes()">Save Notes</button>
+          </div>
+        </div>
+
+        <div class="revision-sidebar">
+          <div class="card">
+            <div class="card-title">📊 Today's Stats</div>
+            <div id="today-stats-display"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">📈 Weekly Progress</div>
+            <div id="week-stats-display"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔥 Streak: <span id="tracker-streak">0</span></div>
+            <div id="recent-log-display"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESOURCES -->
+  <section id="section-resources" class="section hidden">
+    <div class="resources-wrapper">
+      <div class="resources-header">
+        <h2>📚 Free Learning Resources</h2>
+        <p>Curated YouTube channels and ICAI official materials</p>
+      </div>
+
+      <div class="subject-tabs" id="resources-subject-tabs"></div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem;">Faculty YouTube Channels</h3>
+      <div class="grid-auto" id="youtube-resources-grid"></div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem;">Official ICAI Resources</h3>
+      <div class="grid-auto" id="icai-resources-grid"></div>
+    </div>
+  </section>
+
+  <!-- STRATEGY HUB -->
+  <section id="section-strategy" class="section hidden">
+    <div class="strategy-wrapper">
+      <div class="strategy-header">
+        <h2>💡 Study Strategy Hub</h2>
+      </div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem;">📅 Your Study Phases</h3>
+      <div class="phase-cards" id="phase-cards-grid"></div>
+
+      <div id="article-schedule-section" class="hidden">
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem;">💼 Articleship Daily Schedule Template</h3>
+        <div class="grid-2" id="article-schedule-grid"></div>
+      </div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem;">🎯 Proven Study Techniques</h3>
+      <div class="techniques-grid" id="techniques-grid"></div>
+    </div>
+  </section>
+
+  <!-- PROFILE PAGE -->
+  <section id="section-profile" class="section hidden">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">👤 My Profile & Settings</h2>
+
+      <div class="card">
+        <div class="card-title">📋 Personal Information</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="form-input" id="profile-name-input" placeholder="Your name"/>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" class="form-input" id="profile-email-input" placeholder="Your email"/>
+          </div>
+        </div>
+
+        <div class="grid-2 mt-4">
+          <div class="form-group">
+            <label>Student Mode</label>
+            <select class="form-select" id="profile-mode-select" onchange="toggleProfileArticleshipFields()">
+              <option value="fulltime">🎓 Full-Time Student</option>
+              <option value="articleship">💼 Articleship Student</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Exam Attempt</label>
+            <select class="form-select" id="profile-attempt-select"></select>
+          </div>
+        </div>
+
+        <div id="profile-articleship-fields" class="hidden mt-4">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Office Days per Week</label>
+              <input type="number" class="form-input" id="profile-office-days" min="5" max="6"/>
+            </div>
+            <div class="form-group">
+              <label>Office Hours per Day</label>
+              <input type="number" class="form-input" id="profile-office-hrs" min="8" max="12"/>
+            </div>
+          </div>
+          <div class="grid-2 mt-2">
+            <div class="form-group">
+              <label>Weekday Study Hours</label>
+              <input type="number" class="form-input" id="profile-hours-weekday" min="1" max="6"/>
+            </div>
+            <div class="form-group">
+              <label>Weekend Study Hours</label>
+              <input type="number" class="form-input" id="profile-hours-weekend" min="4" max="12"/>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <label>Pre-Exam Study Leave (Days)</label>
+            <input type="number" class="form-input" id="profile-exam-leave" min="15" max="120"/>
+          </div>
+        </div>
+
+        <div class="form-group mt-4">
+          <label>Daily Study Hours (Full-Time)</label>
+          <input type="number" class="form-input" id="profile-hours-daily" min="4" max="16"/>
+        </div>
+
+        <label class="mt-4" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+          <input type="checkbox" id="profile-exclude-sundays" style="width: 18px; height: 18px;"/>
+          <span>Exclude Sundays from study schedule</span>
+        </label>
+
+        <button class="btn btn-primary btn-full mt-4" onclick="saveDedicatedProfileSettings()">💾 Save Profile Settings</button>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-title">🔧 Data Management</div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="exportDataBackup()">📥 Download Backup</button>
+          <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
+            📤 Restore Backup
+            <input type="file" accept=".json" onchange="importDataBackup(event)" style="display: none;"/>
+          </label>
+          <button class="btn btn-danger" onclick="confirmResetAll()">🔄 Hard Reset App</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section id="section-feedback" class="section hidden">
+    <div class="feedback-wrapper">
+      <h2>💬 Share Your Feedback</h2>
+      <p>Help us improve CA Final Planner by sharing your experience!</p>
+
+      <div class="card" style="max-width: 680px; margin: 2rem auto;">
+        <label style="font-weight: 700; margin-bottom: 1rem; display: block;">How would you rate your experience?</label>
+        <div class="rating-stars" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem;">
+          <span class="rating-star" data-val="1">⭐</span>
+          <span class="rating-star" data-val="2">⭐</span>
+          <span class="rating-star" data-val="3">⭐</span>
+          <span class="rating-star" data-val="4">⭐</span>
+          <span class="rating-star" data-val="5">⭐</span>
+        </div>
+        <div id="rating-label" style="text-align: center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;"></div>
+
+        <div class="form-group">
+          <label>What's your favorite feature?</label>
+          <select class="form-select" id="feedback-feature">
+            <option>Personalized Timetable</option>
+            <option>Revision Tracker</option>
+            <option>Daily Logging</option>
+            <option>Resources Hub</option>
+            <option>Strategy Guides</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Your Comments (Optional)</label>
+          <textarea class="form-textarea" id="feedback-text" placeholder="What can we improve? Share your thoughts..."></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="submitFeedback()">📨 Submit Feedback</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOCKS SECTION -->
+  <section id="section-mocks" class="section hidden">
+    <div class="strategy-wrapper">
+      <h2>📝 Mock Test Tracker</h2>
+      
+      <div class="card">
+        <div class="card-title">Add New Mock Result</div>
+        <div class="grid-2 mt-2">
+          <div class="form-group">
+            <label>Subject</label>
+            <select class="form-select" id="mock-subject-select"></select>
+          </div>
+          <div class="form-group">
+            <label>Series/Test Name</label>
+            <input type="text" class="form-input" id="mock-series-input" placeholder="e.g. RTP 1, MTP Mock 3"/>
+          </div>
+        </div>
+        <div class="grid-2 mt-2">
+          <div class="form-group">
+            <label>Date Attempted</label>
+            <input type="date" class="form-input" id="mock-date-input"/>
+          </div>
+          <div class="form-group">
+            <label>Marks Obtained (out of 100)</label>
+            <input type="number" class="form-input" id="mock-marks-input" min="0" max="100"/>
+          </div>
+        </div>
+        <button class="btn btn-primary mt-3" onclick="saveMockTest()">Save Mock Result</button>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-title">Your Mock Performance</div>
+        <div id="mock-tests-list"></div>
+      </div>
     </div>
   </section>
 
@@ -164,12 +496,19 @@
 <!-- App Scripts (CORRECT ORDER) -->
 <script src="js/firebase-config.js?v=9"></script>
 <script src="js/data.js?v=9"></script>
+<script src="js/state.js?v=9"></script>
+<script src="js/core.js?v=9"></script>
+<script src="js/planner.js?v=9"></script>
 <script src="js/app.js?v=9"></script>
+<script src="js/ui.js?v=9"></script>
 <script src="js/features.js?v=9"></script>
 <script src="js/auth.js?v=9"></script>
 
 <!-- Init Script -->
 <script>
+// Admin password definition
+const ADMIN_PASSWORD = 'admin123';
+
 window.appReady = false;
 
 function initApp() {
@@ -178,19 +517,13 @@ function initApp() {
   
   console.log("=== APP INIT ===");
   
-  // 1. Firebase
-  if (window.initFirebase) {
-    window.initFirebase();
-    console.log("✅ Firebase initialized");
-  }
-  
-  // 2. Google Auth
+  // 1. Google Auth
   if (window.initGoogleSignIn) {
     window.initGoogleSignIn();
     console.log("✅ Google Auth initialized");
   }
   
-  // 3. Hide loader
+  // 2. Hide loader
   setTimeout(() => {
     const loader = document.getElementById('loading-overlay');
     if (loader) {

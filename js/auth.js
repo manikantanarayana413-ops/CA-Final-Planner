@@ -42,7 +42,7 @@ function signInWithGoogle() {
     .then((result) => {
       const user = result.user;
       console.log("✅ Signed in:", user.email);
-      saveUserToFirestore(user);
+      if (window.saveUserToFirestore) window.saveUserToFirestore(user);
       showToast(`👋 Welcome, ${user.displayName || 'Friend'}!`);
       return false;
     })
