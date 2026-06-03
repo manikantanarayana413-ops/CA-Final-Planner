@@ -3,9 +3,16 @@
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("=== CORE.JS INIT ===");
+  
   // Hide loader and start stars canvas
   initStarsCanvas();
-  loadStateFromStorage();
+  
+  // Load state from localStorage (if not coming from Firebase auth)
+  if (!STATE.profile) {
+    loadStateFromStorage();
+  }
+  
   setupRouting();
   
   // Set up event listeners for landing page and wizard
@@ -32,14 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Firebase (fails gracefully if in offline mode)
   initFirebase();
 
-  // Hide loading screen after 1.2s for beautiful intro
-  setTimeout(() => {
-    const loader = document.getElementById('loading-overlay');
-    if (loader) {
-      loader.style.opacity = '0';
-      setTimeout(() => loader.classList.add('hidden'), 500);
-    }
-  }, 1200);
+  console.log("✅ Core.js initialized");
 });
 
 // Load state from localStorage
@@ -70,6 +70,7 @@ function loadStateFromStorage() {
       
       // Show Nav
       document.getElementById('main-nav')?.classList.remove('hidden');
+      console.log("✅ Loaded state from localStorage");
     }
   } catch (e) {
     console.error("Failed to load local storage state:", e);
@@ -105,11 +106,13 @@ function clearAllData() {
   
   document.getElementById('main-nav')?.classList.add('hidden');
   navigateTo('landing');
-  showToast('ðŸ”„ App successfully reset.');
+  showToast('🔄 App successfully reset.');
 }
 
 // Simple Router
 function navigateTo(sectionId, isPopState = false) {
+  console.log("📍 Navigating to:", sectionId, "Profile exists:", !!STATE.profile);
+  
   const sections = document.querySelectorAll('.section');
   sections.forEach(sec => sec.classList.add('hidden'));
 
@@ -135,20 +138,45 @@ function navigateTo(sectionId, isPopState = false) {
 
   // Render content depending on section
   if (STATE.profile) {
-    if (sectionId === 'dashboard') renderDashboard();
-    else if (sectionId === 'timetable') renderTimetable();
-    else if (sectionId === 'revision') renderRevisionPlanner();
-    else if (sectionId === 'tracker') renderTracker();
-    else if (sectionId === 'resources') renderResources();
-    else if (sectionId === 'strategy') renderStrategyHub();
-    else if (sectionId === 'profile') renderProfilePage();
-    else if (sectionId === 'admin') renderAdminPage();
-    else if (sectionId === 'feedback') initFeedbackStars();
+    if (sectionId === 'dashboard') {
+      if (typeof renderDashboard === 'function') renderDashboard();
+    }
+    else if (sectionId === 'timetable') {
+      if (typeof renderTimetable === 'function') renderTimetable();
+    }
+    else if (sectionId === 'revision') {
+      if (typeof renderRevisionPlanner === 'function') renderRevisionPlanner();
+    }
+    else if (sectionId === 'tracker') {
+      if (typeof renderTracker === 'function') renderTracker();
+    }
+    else if (sectionId === 'resources') {
+      if (typeof renderResources === 'function') renderResources();
+    }
+    else if (sectionId === 'strategy') {
+      if (typeof renderStrategyHub === 'function') renderStrategyHub();
+    }
+    else if (sectionId === 'profile') {
+      if (typeof renderProfilePage === 'function') renderProfilePage();
+    }
+    else if (sectionId === 'admin') {
+      if (typeof renderAdminPage === 'function') renderAdminPage();
+    }
+    else if (sectionId === 'feedback') {
+      if (typeof initFeedbackStars === 'function') initFeedbackStars();
+    }
+    else if (sectionId === 'mocks') {
+      if (typeof renderMockTests === 'function') renderMockTests();
+    }
+    else if (sectionId === 'friends') {
+      if (typeof renderFriends === 'function') renderFriends();
+    }
     
     // Apply admin feature flags dynamically
     if (typeof applyFeatureFlags === 'function') applyFeatureFlags();
   } else if (sectionId !== 'landing' && sectionId !== 'onboarding') {
-    // Redirect un-onboarded users
+    // Redirect un-onboarded users to landing
+    console.log("⚠️ No profile, redirecting to landing");
     navigateTo('landing');
   }
 }
@@ -163,15 +191,14 @@ function setupRouting() {
     }
   });
 
-  const hash = window.location.hash.substring(1); // Remove #
-  if (STATE.profile) {
+  // Only setup initial routing if no profile set yet (let Firebase auth handle it)
+  if (!STATE.profile) {
+    const hash = window.location.hash.substring(1);
     if (hash && document.getElementById(`section-${hash}`)) {
       navigateTo(hash, true);
     } else {
-      navigateTo('dashboard', true);
+      navigateTo('landing', true);
     }
-  } else {
-    navigateTo('landing', true);
   }
 
   // Set up nav-link click handlers
@@ -229,4 +256,3 @@ function initStarsCanvas() {
   }
   draw();
 }
-

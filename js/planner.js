@@ -25,19 +25,15 @@ let onboardingData = {
 };
 
 function startOnboarding() {
-  // If Firebase is enabled and user is NOT signed in, prompt login first
-  if (FEATURES.firebaseEnabled && typeof firebase !== 'undefined' && auth && !auth.currentUser) {
-    showLoginModal();
-    showToast('Please Log In or Sign Up first to save your plan to the cloud.');
-    return;
-  }
   currentStep = 1;
-  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.getElementById('section-onboarding')?.classList.remove('hidden');
+  document.getElementById('modal-overlay')?.classList.remove('hidden');
   renderWizardStep();
 }
 
 function closeWizard() {
-  document.getElementById('modal-overlay').classList.add('hidden');
+  document.getElementById('section-onboarding')?.classList.add('hidden');
+  document.getElementById('modal-overlay')?.classList.add('hidden');
 }
 
 function wizardNext() {

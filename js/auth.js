@@ -2,9 +2,7 @@
 // GOOGLE AUTHENTICATION — CA Final Planner
 // ============================================================
 
-let currentGoogleUser = null;
-
-// Initialize Google Sign-In (called from index.html initApp)
+// Auth state listener
 function initGoogleSignIn() {
   if (!window.firebase) {
     console.warn("⚠️ Firebase not loaded");
@@ -12,14 +10,11 @@ function initGoogleSignIn() {
   }
 
   try {
-    // Auth state listener
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        currentGoogleUser = user;
         console.log("✅ Auth state: logged in -", user.email);
         handleUserLoggedIn(user);
       } else {
-        currentGoogleUser = null;
         console.log("✅ Auth state: logged out");
         handleUserLoggedOut();
       }
@@ -57,85 +52,46 @@ function signInWithGoogle() {
   return false;
 }
 
-// Save user to Firestore
-function saveUserToFirestore(user) {
-  if (!window.db || !user) return;
-
-  try {
-    window.db.collection("users").doc(user.uid).set({
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || "Student",
-      photoURL: user.photoURL || "",
-      authMethod: "google",
-      profileCompleted: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).catch(e => console.error("Save failed:", e.message));
-  } catch (e) {
-    console.error("❌ Save to Firestore failed:", e.message);
-  }
-}
-
-// Load user profile from Firestore
-async function loadUserFromFirestore(uid) {
-  if (!window.db) return null;
-  try {
-    const doc = await window.db.collection("users").doc(uid).get();
-    return doc.exists ? doc.data() : null;
-  } catch (e) {
-    console.error("❌ Load from Firestore failed:", e.message);
-    return null;
-  }
-}
-
-// Sign out
-function signOutUser() {
-  firebase.auth().signOut()
-    .then(() => {
-      currentGoogleUser = null;
-      showToast("👋 Signed out");
-      console.log("✅ Signed out");
-      if (window.navigateTo) window.navigateTo("landing");
-      return false;
-    })
-    .catch((error) => {
-      showToast(`❌ Sign-out failed: ${error.message}`, "error");
-      return false;
-    });
-  
-  return false;
-}
-
 // Handle login
 async function handleUserLoggedIn(user) {
+  console.log("📱 Processing login for:", user.email);
+  
   // Ensure STATE exists
   if (!window.STATE) {
     window.STATE = { profile: null };
   }
 
-  // Load user profile
-  const profile = await loadUserFromFirestore(user.uid);
+  // Load user profile from Firestore
+  const profile = await loadUserProfile(user.uid);
+  console.log("📋 Loaded profile:", profile ? 'exists' : 'new user');
 
   if (profile && profile.profileCompleted) {
-    // Returning user - show dashboard
-    window.STATE.profile = {
+    // Returning user - load from Firestore and set dashboard
+    STATE.profile = {
       uid: user.uid,
       email: user.email,
       name: user.displayName,
       photo: user.photoURL,
+      profileCompleted: true,
       ...profile
     };
 
-    // Show nav & dashboard
+    console.log("✅ Returning user - loading dashboard");
+    localStorage.setItem('ca_final_profile', JSON.stringify(STATE.profile));
+
+    // Show nav
     const nav = document.getElementById("main-nav");
     if (nav) nav.classList.remove("hidden");
 
-    if (window.navigateTo) window.navigateTo("dashboard");
-    if (window.renderDashboard) window.renderDashboard();
+    // Delay navigation to ensure all resources loaded
+    setTimeout(() => {
+      if (window.navigateTo) {
+        window.navigateTo("dashboard");
+      }
+    }, 100);
   } else {
-    // New user - show onboarding
-    window.STATE.profile = {
+    // New user - show onboarding wizard
+    STATE.profile = {
       uid: user.uid,
       email: user.email,
       name: user.displayName,
@@ -143,23 +99,36 @@ async function handleUserLoggedIn(user) {
       profileCompleted: false
     };
 
-    // Show nav & onboarding
+    console.log("🆕 New user - starting onboarding");
+    localStorage.setItem('ca_final_profile', JSON.stringify(STATE.profile));
+
+    // Show nav
     const nav = document.getElementById("main-nav");
     if (nav) nav.classList.remove("hidden");
 
-    if (window.navigateTo) window.navigateTo("onboarding");
-    if (window.renderWizardStep) window.renderWizardStep();
+    // Start onboarding wizard
+    if (window.startOnboarding) {
+      window.startOnboarding();
+    }
   }
 }
 
 // Handle logout
 function handleUserLoggedOut() {
+  console.log("👋 User logged out");
+  
   if (!window.STATE) window.STATE = {};
   
   window.STATE.profile = null;
   window.STATE.timetable = [];
   window.STATE.tracker = {};
   window.STATE.revision = {};
+  
+  // Clear localStorage
+  localStorage.removeItem('ca_final_profile');
+  localStorage.removeItem('ca_final_timetable');
+  localStorage.removeItem('ca_final_tracker');
+  localStorage.removeItem('ca_final_revision');
 
   const nav = document.getElementById("main-nav");
   if (nav) nav.classList.add("hidden");
@@ -167,20 +136,24 @@ function handleUserLoggedOut() {
   if (window.navigateTo) window.navigateTo("landing");
 }
 
-// Helper to show profile menu
-function showProfileMenu() {
-  if (window.isUserLoggedIn && window.isUserLoggedIn()) {
-    // Show logout option
-    const confirmed = confirm("Sign out?");
-    if (confirmed) {
-      signOutUser();
-    }
+// Setup auth initialization on page load
+function setupAuthInit() {
+  console.log("=== AUTH INIT ===");
+  
+  if (window.initGoogleSignIn) {
+    window.initGoogleSignIn();
+    console.log("✅ Google Auth listener attached");
   }
-  return false;
 }
 
-// Exports
-window.initGoogleSignIn = initGoogleSignIn;
-window.signInWithGoogle = signInWithGoogle;
-window.signOutUser = signOutUser;
+// Run on document ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupAuthInit);
+} else {
+  setupAuthInit();
+}
 
+// Expose to window for debugging
+window.handleUserLoggedIn = handleUserLoggedIn;
+window.handleUserLoggedOut = handleUserLoggedOut;
+window.signInWithGoogle = signInWithGoogle;
