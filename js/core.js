@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Firebase (fails gracefully if in offline mode)
   initFirebase();
 
+  // Hide loading screen after 1.2s for beautiful intro
+  setTimeout(() => {
+    const loader = document.getElementById('loading-overlay');
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.classList.add('hidden'), 500);
+    }
+  }, 1200);
+
   console.log("✅ Core.js initialized");
 });
 
@@ -208,6 +217,13 @@ function setupRouting() {
       navigateTo(section);
     });
   });
+
+  // Also check if we should redirect to dashboard on initial load
+  if (STATE.profile && window.location.hash === '') {
+    setTimeout(() => {
+      navigateTo('dashboard', true);
+    }, 100);
+  }
 }
 
 // ============================================================
