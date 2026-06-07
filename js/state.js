@@ -1,5 +1,5 @@
-﻿// ============================================================
-// CA FINAL PLANNER â€” CORE APPLICATION LOGIC
+// ============================================================
+// CA FINAL PLANNER — CORE APPLICATION STATE
 // ============================================================
 
 // Global application state
@@ -17,6 +17,7 @@ let STATE = {
   streak: 0,
   bestStreak: 0,
   selectedFbStars: 0,
+  timetableEditMode: false,  // Whether calendar is in edit/drag mode
   pomo: {
     timer: null,
     mode: 'focus', // 'focus', 'short', 'long'
@@ -31,11 +32,12 @@ const ATTEMPTS = CA_DATA.examAttempts;
 
 // LocalStorage Keys
 const KEYS = {
-  profile: 'ca_final_profile',
+  profile:   'ca_final_profile',
   timetable: 'ca_final_timetable',
-  tracker: 'ca_final_tracker',
-  revision: 'ca_final_revision',
+  tracker:   'ca_final_tracker',
+  revision:  'ca_final_revision',
+  mocks:     'ca_final_mocks',
+  friends:   'ca_final_friends',
   pomoCount: 'ca_final_pomo_count',
-  pomoDate: 'ca_final_pomo_date'
+  pomoDate:  'ca_final_pomo_date'
 };
-
