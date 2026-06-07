@@ -1,5 +1,5 @@
 // ============================================================
-// FIREBASE CONFIG — CA Final Planner with Google Auth
+// FIREBASE CONFIG — CA Final Planner
 // ============================================================
 
 const FIREBASE_CONFIG = {
@@ -12,42 +12,60 @@ const FIREBASE_CONFIG = {
   measurementId: "G-0B0R37BKND"
 };
 
+// Admin password
+const ADMIN_PASSWORD = "Mani@2005";
+
 // Feature flags
 const FEATURES = {
   firebaseEnabled: true,
-  googleAuthEnabled: true,
   analyticsEnabled: true,
+  adminEnabled: true,
 };
 
-// GLOBAL ACCESS
-window.db = null;
-window.auth = null;
+// Firebase instances — initialized in initFirebase()
+let db   = null;
+let auth = null;
+let firebaseAppInstance = null;
 
 function initFirebase() {
+  // Guard: only run if Firebase SDK is available
   if (typeof firebase === 'undefined') {
     console.warn("⚠️ Firebase SDK not loaded. Running in offline mode.");
     FEATURES.firebaseEnabled = false;
     return false;
   }
 
+  if (!FEATURES.firebaseEnabled) {
+    console.info("ℹ️ Firebase disabled via feature flag. Running in offline mode.");
+    return false;
+  }
+
   try {
     // Avoid double-initialization
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
+    if (firebase.apps && firebase.apps.length > 0) {
+      firebaseAppInstance = firebase.apps[0];
+    } else {
+      firebaseAppInstance = firebase.initializeApp(FIREBASE_CONFIG);
     }
 
-    // Assign to global window object
-    window.auth = firebase.auth();
-    window.db = firebase.firestore();
+    auth = firebase.auth();
+    db   = firebase.firestore();
 
-    // Enable offline persistence
-    window.db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
-      if (err.code !== 'failed-precondition') {
-        console.warn('Firestore persistence status:', err.code);
+    // Enable offline persistence for Firestore (graceful fallback)
+    db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Firestore persistence unavailable (multiple tabs open).');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Firestore persistence not supported in this browser.');
       }
     });
 
-    console.log("✅ Firebase initialized with Google Auth enabled");
+    // Firebase Analytics (optional, only in production)
+    if (FEATURES.analyticsEnabled && typeof firebase.analytics === 'function') {
+      try { firebase.analytics(); } catch(e) { /* silently ignore */ }
+    }
+
+    console.info("✅ Firebase initialized successfully.");
     return true;
   } catch (e) {
     console.error("❌ Firebase init failed:", e);
@@ -56,154 +74,74 @@ function initFirebase() {
   }
 }
 
-// Initialize immediately when script loads
-initFirebase();
+// ── FIRESTORE HELPERS ────────────────────────────────────────
 
-// ── FIRESTORE HELPERS FOR GOOGLE AUTH ────────────────────
-
-/**
- * Save user profile to Firestore
- */
-async function saveUserToFirestore(user) {
-  if (!window.db || !user) return;
-  
+// Save full user data to Firestore (keyed by email)
+async function saveUserToFirestore(data) {
+  if (!db || !data || !data.email) return;
   try {
-    const uid = (user.uid || user.id || user.email.replace(/[^a-zA-Z0-9]/g, '_'));
-    const userRef = window.db.collection('users').doc(uid);
-    
-    await userRef.set({
-      uid: uid,
-      email: user.email,
-      name: user.name || 'Student',
-      displayName: user.displayName || user.name || 'Student',
-      photoURL: user.photoURL || '',
-      authMethod: user.authMethod || 'google',
-      profileCompleted: user.profileCompleted !== undefined ? user.profileCompleted : true,
+    const docId = data.email.replace(/[^a-zA-Z0-9]/g, '_');
+    const payload = {
+      ...data,
       lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt: user.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
-    
-    console.log("✅ User saved to Firestore");
-    return true;
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await db.collection("users").doc(docId).set(payload, { merge: true });
+    console.info("💾 Data saved to Firestore for:", data.email);
   } catch (e) {
-    console.error("❌ Save user profile failed:", e);
-    return false;
+    console.error("Firestore save failed:", e);
   }
 }
 
-/**
- * Load user profile from Firestore by UID
- */
-async function loadUserProfile(uid) {
-  if (!window.db || !uid) return null;
-  
+// Load user profile from Firestore by email
+async function loadUserFromFirestore(email) {
+  if (!db || !email) return null;
   try {
-    const doc = await window.db.collection('users').doc(uid).get();
-    return doc.exists ? doc.data() : null;
+    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
+    const doc = await db.collection("users").doc(docId).get();
+    if (doc.exists) {
+      return doc.data();
+    }
+    return null;
   } catch (e) {
-    console.error("❌ Load profile failed:", e);
+    console.error("Firestore load failed:", e);
     return null;
   }
 }
 
-/**
- * Save user's study data (timetable, tracker, etc)
- * Path: users/{uid}/data/
- */
-async function saveUserStudyData(uid, dataType, data) {
-  if (!window.db || !uid || !dataType) return;
-  
+// Save feedback to Firestore
+async function saveFeedbackToFirestore(feedback) {
+  if (!db) return;
   try {
-    const dataRef = window.db.collection('users').doc(uid).collection('data').doc(dataType);
-    await dataRef.set(data, { merge: true });
-    console.log(`✅ Saved ${dataType} for user ${uid}`);
-  } catch (e) {
-    console.error(`❌ Save study data (${dataType}) failed:`, e);
-  }
-}
-
-/**
- * Load user's study data
- */
-async function loadUserStudyData(uid, dataType) {
-  if (!window.db || !uid || !dataType) return null;
-  
-  try {
-    const doc = await window.db.collection('users').doc(uid).collection('data').doc(dataType).get();
-    return doc.exists ? doc.data() : null;
-  } catch (e) {
-    console.error(`❌ Load study data (${dataType}) failed:`, e);
-    return null;
-  }
-}
-
-/**
- * Submit feedback to Firestore
- */
-async function submitFeedback(feedbackData) {
-  if (!window.db || !window.auth.currentUser) return;
-  
-  try {
-    await window.db.collection('feedback').add({
-      ...feedbackData,
-      userId: window.auth.currentUser.uid,
-      userEmail: window.auth.currentUser.email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    await db.collection("feedback").add({
+      ...feedback,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
-    console.log("✅ Feedback submitted");
-    return true;
   } catch (e) {
-    console.error("❌ Feedback submission failed:", e);
-    return false;
+    console.error("Feedback save failed:", e);
   }
 }
 
-/**
- * Get broadcast messages (admin announcements)
- */
-async function getBroadcastMessages() {
-  if (!window.db) return [];
-  
+// Fetch all users (admin only)
+async function fetchAllUsers() {
+  if (!db) return [];
   try {
-    const snapshot = await window.db.collection('broadcast')
-      .orderBy('createdAt', 'desc')
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) return null;
-    return snapshot.docs[0].data();
+    const snap = await db.collection("users").orderBy("lastLogin", "desc").limit(100).get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error("❌ Load broadcast failed:", e);
-    return null;
+    console.error("Fetch users failed:", e);
+    return [];
   }
 }
 
-/**
- * Save feedback to Firestore
- */
-async function saveFeedbackToFirestore(feedbackObj) {
-  if (!window.db) return false;
-  
+// Fetch all feedback (admin only)
+async function fetchAllFeedback() {
+  if (!db) return [];
   try {
-    await window.db.collection('feedback').add({
-      ...feedbackObj,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-    console.log("✅ Feedback submitted to Firestore");
-    return true;
+    const snap = await db.collection("feedback").orderBy("createdAt", "desc").limit(50).get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error("❌ Feedback submission failed:", e);
-    return false;
+    console.error("Fetch feedback failed:", e);
+    return [];
   }
 }
-
-// Export to window
-window.saveUserToFirestore = saveUserToFirestore;
-window.loadUserProfile = loadUserProfile;
-window.saveUserStudyData = saveUserStudyData;
-window.loadUserStudyData = loadUserStudyData;
-window.submitFeedback = submitFeedback;
-window.saveFeedbackToFirestore = saveFeedbackToFirestore;
-window.getBroadcastMessages = getBroadcastMessages;
-
