@@ -329,13 +329,6 @@ function initDragAndDrop() {
   });
 }
 
-// Hook into renderTracker via override
-const originalRenderTracker = window.renderTracker;
-window.renderTracker = function() {
-  if (originalRenderTracker) originalRenderTracker();
-  initDragAndDrop();
-};
-
 // â”€â”€ MOCK TEST TRACKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function initMockSelect() {
   const select = document.getElementById('mock-subject-select');
@@ -483,10 +476,6 @@ function getWeeklyHours(trackerObj) {
   return hrs;
 }
 
-// Hook into navigation to render sections
-const originalNavigateTo = window.navigateTo;
-window.navigateTo = function(sectionId, isPopState = false) {
-  if (originalNavigateTo) originalNavigateTo(sectionId, isPopState);
-  if (sectionId === 'mocks') renderMockTests();
-  if (sectionId === 'friends') renderFriends();
-};
+// Export render functions (called directly by core.js navigateTo switch)
+window.renderMockTests = renderMockTests;
+window.renderFriends   = renderFriends;
