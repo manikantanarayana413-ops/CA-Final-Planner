@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // DASHBOARD RENDERING & INTERACTIVITY
 // ============================================================
 
@@ -812,6 +812,9 @@ function renderTracker() {
       recentDiv.innerHTML = `<span class="text-muted text-xs">No active study history found yet. Clear your daily plans above!</span>`;
     }
   }
+
+  // Re-initialize drag-and-drop after DOM is re-rendered
+  if (typeof initDragAndDrop === 'function') initDragAndDrop();
 }
 
 function populateTrackerChaptersSelect(subId) {
@@ -1563,8 +1566,7 @@ function applyFeatureFlags() {
 }
 window.applyFeatureFlags = applyFeatureFlags;
 
-// â”€â”€ CUSTOM TIMETABLE TUNING & DRAG & DROP LOGIC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-STATE.timetableEditMode = false;
+// ─── CUSTOM TIMETABLE TUNING & DRAG & DROP LOGIC ──────────────
 let dragSubjectId = null;
 let dragChapterName = null;
 let dragHours = 1;
